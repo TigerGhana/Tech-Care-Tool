@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TECH-CARE OUTREACH TOOL</title>
+<style>
+:root{--bg:#f1f5f9;--cd:#fff;--tx:#0f172a;--mu:#64748b;--bd:#e2e8f0;--pr:#0d9488;--sb:#0f766e;--dg:#dc2626}
+:root[data-theme=dark]{--bg:#0b1220;--cd:#16213a;--tx:#e5e7eb;--mu:#94a3b8;--bd:#26344f;--pr:#2dd4bf;--sb:#0a1a2e}
+*{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+.app{display:flex;min-height:100vh}aside{width:220px;background:var(--sb);color:#fff;padding:16px;display:flex;flex-direction:column;gap:12px;flex-shrink:0}
+aside h2{font-size:15px;margin:0;letter-spacing:.5px}nav{display:flex;flex-direction:column;gap:4px;flex:1}
+nav a{padding:9px 12px;border-radius:8px;cursor:pointer;color:#e2e8f0}nav a.on,nav a:hover{background:rgba(255,255,255,.18);color:#fff}
+.me{font-size:13px}main{flex:1;padding:20px;min-width:0}h1{margin:0 0 14px;font-size:22px}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.kpi b{display:block;font-size:26px;color:var(--pr)}.cc{position:relative;height:260px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:7px 9px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}th{color:var(--mu);white-space:nowrap}
+button,.btn{background:var(--pr);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px}button.s{background:transparent;color:var(--pr);border:1px solid var(--pr)}button.d{background:var(--dg)}
+input,select,textarea{width:100%;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);color:var(--tx);font:inherit}input:disabled,select:disabled{opacity:.5}
+label{display:block;margin-bottom:10px;font-size:12px;color:var(--mu)}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.row>*{width:auto}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9;padding:10px}.box{background:var(--cd);border-radius:12px;padding:20px;width:560px;max-width:100%;max-height:92vh;overflow:auto}
+.hide{display:none!important}.auth{max-width:380px;margin:6vh auto}.auth .card{padding:24px}.err{color:var(--dg);min-height:18px;font-size:13px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:8px;display:none;z-index:99}#toast.show{display:block}
+.sum{cursor:pointer}.sum:hover{background:rgba(13,148,136,.08)}img.th{width:36px;height:36px;object-fit:cover;border-radius:4px}
+@media(max-width:700px){.app{flex-direction:column}aside{width:auto}nav{flex-direction:row;flex-wrap:wrap}}
+</style></head><body>
+<div id="root"></div><div id="modal" class="modal hide"></div><div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+/* ====== CONFIG: paste your Supabase values here when deploying ====== */
+const SUPABASE_URL='https://paufxrjjenmctqyuqfgl.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhdWZ4cmpqZW5tY3RxeXVxZmdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyOTc5MDcsImV4cCI6MjExMDg3MzkwN30.M5sl7SWlIyBhaJw3w7exaxqXf-nw5kQMHxHUQGq5Yu0';
+/* ==================================================================== */
+const FAC=['Essikado Hospital','Apinto Hospital','Juaboso Hospital','Sefwi Wiawso Hospital'];
+const ASR=['Kingsley Adjepong','Kwabena Okyere Boateng','Linda Akorfa Abotsigah','Oliver Agboka'];
+const NS=['Corrective Maintenance','Preventive Maintenance','User Training'];
+const TS=['Preventive Maintenance Done','Corrective Maintenance Done','User Trainings Done'];
+const ROLES={executive:'BME Executive',secretariat:'Secretariat Team',needs_assessment:'Needs Assessment Team',team_member:'Team Member',viewer:'Viewer'};
+const ALL=['overview','needs','facilities','users','team','settings'];
+const TABS={executive:ALL,secretariat:ALL,needs_assessment:['overview','needs','facilities','settings'],team_member:['overview','team','settings'],viewer:['overview','settings']};
+const TL={overview:'Overview',needs:'Needs Assessment',facilities:'Facilities',users:'Users',team:'Team Members',settings:'Settings'};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const opts=(a,v)=>a.map(x=>`<option${x===v?' selected':''}>${esc(x)}</option>`).join('');
+const ph=(a,v)=>'<option value="">Select…</option>'+opts(a,v);
+const money=n=>Number(n||0).toLocaleString('en-GH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const mail=p=>p+'@techcare.app';
+let sb,me,tab='overview',D={needs:[],work:[],users:[],stats:[]},charts=[],nfac='';
+const isAdmin=()=>me&&(me.role==='executive'||me.role==='secretariat');
+const toast=m=>{const t=$('#toast');t.textContent=m;t.className='show';clearTimeout(toast.t);toast.t=setTimeout(()=>t.className='',3500)};
+const openModal=h=>{const m=$('#modal');m.innerHTML='<div class="box">'+h+'</div>';m.classList.remove('hide')};
+const closeModal=()=>$('#modal').classList.add('hide');
+function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('tc_theme',t)}catch(e){}}
+try{setTheme(localStorage.getItem('tc_theme')||'light')}catch(e){}
+function csv(name,rows){if(!rows.length)return toast('Nothing to export');const k=Object.keys(rows[0]);
+ const t=[k.join(','),...rows.map(r=>k.map(c=>'"'+String(r[c]==null?'':r[c]).replace(/"/g,'""')+'"').join(','))].join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download=name+'_'+new Date().toISOString().slice(0,10)+'.csv';a.click()}
+
+/* ---------- AUTH ---------- */
+function authView(m,signup){
+ $('#root').innerHTML=`<div class="auth"><div class="card"><h2 style="margin-top:0;color:var(--pr)">TECH-CARE OUTREACH TOOL</h2>
+ <form id="af" onsubmit="${signup?'doSignup':'doLogin'}(event)">
+ ${signup?'<label>Full Name<input name="fname" required></label><label>Email<input name="email" type="email" required></label>':''}
+ <label>Telephone (10 digits)<input name="phone" inputmode="numeric" maxlength="10" pattern="[0-9]{10}" required oninput="this.value=this.value.replace(/\\D/g,'').slice(0,10)"></label>
+ <label>Password<input name="password" type="password" minlength="6" required></label>
+ ${signup?'<label>Confirm Password<input name="confirm" type="password" minlength="6" required></label>':''}
+ <div class="err" id="am">${esc(m||'')}</div><button style="width:100%">${signup?'Create account':'Sign in'}</button></form>
+ <p style="text-align:center"><a href="#" onclick="authView('',${!signup});return false" style="color:var(--pr)">${signup?'Already have an account? Sign in':'First time? Create an account'}</a></p>
+ ${signup?'<small style="color:var(--mu)">New accounts start as Viewer until a BME Executive assigns a role.</small>':''}</div></div>`}
+const amsg=m=>{const e=$('#am');if(e)e.textContent=m};
+async function doLogin(e){e.preventDefault();const f=e.target.elements;amsg('');
+ const r=await sb.auth.signInWithPassword({email:mail(f.phone.value),password:f.password.value});
+ if(r.error)return amsg('Invalid telephone number or password');await start()}
+async function doSignup(e){e.preventDefault();const f=e.target.elements,phone=f.phone.value;
+ if(!/^\d{10}$/.test(phone))return amsg('Telephone must be exactly 10 digits');
+ if(f.password.value!==f.confirm.value)return amsg('Passwords do not match');
+ const r=await sb.auth.signUp({email:mail(phone),password:f.password.value,options:{data:{full_name:f.fname.value.trim(),email:f.email.value.trim(),phone}}});
+ if(r.error)return amsg(r.error.message.includes('registered')?'This telephone number is already registered':r.error.message);
+ if(r.data.session)await start();else authView('Account created. Please sign in.')}
+async function init(){
+ if(!SUPABASE_URL||!SUPABASE_ANON_KEY){$('#root').innerHTML='<div class="auth"><div class="card"><h3>Setup needed</h3><p>Open <b>index.html</b> and fill in <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> at the top of the script.</p></div></div>';return}
+ sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+ sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT'){me=null;authView()}});
+ const s=(await sb.auth.getSession()).data.session;s?await start():authView()}
+async function start(){
+ const u=(await sb.auth.getUser()).data.user;let p=null;
+ for(let i=0;i<4&&!p;i++){p=(await sb.from('profiles').select('*').eq('id',u.id).maybeSingle()).data;if(!p)await new Promise(r=>setTimeout(r,600))}
+ if(!p){await sb.auth.signOut();return authView('Profile not found. Run schema.sql and try again.')}
+ me=p;tab='overview';await loadAll();shell()}
+async function loadAll(){
+ const r=me.role,q=[],E=(x,k)=>{if(x.error)toast(x.error.message);D[k]=x.data||[]};
+ q.push(sb.rpc('overview_stats').then(x=>E(x,'stats')));
+ if(['executive','secretariat','needs_assessment'].includes(r))q.push(sb.from('needs').select('*').order('created_at',{ascending:false}).then(x=>E(x,'needs')));
+ if(r!=='viewer')q.push(sb.from('team_work').select('*').order('created_at',{ascending:false}).then(x=>E(x,'work')));
+ if(isAdmin())q.push(sb.from('profiles').select('*').order('created_at').then(x=>E(x,'users')));
+ await Promise.all(q)}
+async function refresh(){await loadAll();render()}
+
+/* ---------- SHELL ---------- */
+function shell(){const T=TABS[me.role]||TABS.viewer;
+ $('#root').innerHTML=`<div class="app"><aside><h2>TECH-CARE<br>OUTREACH TOOL</h2><nav>${T.map(t=>`<a id="n_${t}" onclick="go('${t}')">${TL[t]}</a>`).join('')}</nav>
+ <div class="me"><b>${esc(me.full_name)}</b><br><small>${ROLES[me.role]}${me.team?' · '+esc(me.team):''}</small><br><br><button class="s" style="color:#fff;border-color:#fff" onclick="sb.auth.signOut()">Sign out</button></div></aside><main id="main"></main></div>`;render()}
+function go(t){tab=t;render()}
+function render(){document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.id==='n_'+tab));
+ charts.forEach(c=>c.destroy());charts=[];
+ $('#main').innerHTML=`<h1>${TL[tab]}</h1>`+V[tab]();if(tab==='overview')drawCharts()}
+const V={overview,needs:needsV,facilities:facV,users:usersV,team:teamV,settings:setV};
+
+/* ---------- OVERVIEW ---------- */
+const ovStats=()=>me.role==='team_member'&&me.facility?D.stats.filter(s=>s.facility===me.facility):D.stats;
+function overview(){const s=ovStats(),sum=k=>s.reduce((a,x)=>a+Number(x[k]),0);
+ return `<div class="kpis">${[['assessed','Equipment assessed'],['pm_done','Preventive maintenance done'],['cm_done','Corrective maintenance done'],['tr_done','User trainings organised']].map(([k,l])=>`<div class="card kpi"><b>${sum(k)}</b>${l}</div>`).join('')}</div>
+ <div class="grid">${['c1','c2','c3','c4'].map(i=>`<div class="card"><div class="cc"><canvas id="${i}"></canvas></div></div>`).join('')}</div>`}
+function drawCharts(){const s=ovStats(),tx=getComputedStyle(document.documentElement).getPropertyValue('--tx').trim();
+ [['c1','assessed','Equipment assessed','#2563eb'],['c2','tr_done','User trainings organised','#9333ea'],['c3','pm_done','Preventive maintenance done','#0d9488'],['c4','cm_done','Corrective maintenance done','#ea580c']].forEach(([id,k,l,c])=>{
+ charts.push(new Chart($('#'+id),{type:'bar',data:{labels:s.map(x=>x.facility.replace(' Hospital','')),datasets:[{data:s.map(x=>Number(x[k])),backgroundColor:c,borderRadius:6}]},
+ options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},title:{display:true,text:l,color:tx}},scales:{x:{ticks:{color:tx}},y:{beginAtZero:true,ticks:{precision:0,color:tx}}}}}))})}
+
+/* ---------- NEEDS ASSESSMENT ---------- */
+const canEditN=r=>['executive','secretariat'].includes(me.role)||r.created_by===me.id;
+function needsV(){const rows=D.needs.filter(r=>!nfac||r.facility===nfac);
+ return `<div class="row"><button onclick="needForm()">+ Add equipment</button><select onchange="nfac=this.value;render()"><option value="">All facilities</option>${opts(FAC,nfac)}</select>
+ ${isAdmin()?`<button class="s" onclick="expNeeds()">Export CSV</button>`:''}</div>
+ <div class="card tw"><table><thead><tr><th>#</th><th>Facility</th><th>Equipment</th><th>Location</th><th>Serial No.</th><th>Model</th><th>Service required</th><th>Spare parts / accessories</th><th>Pic</th><th>Qty</th><th>Est. cost (GHS)</th><th>Total (GHS)</th><th>Remarks</th><th>Assessor</th><th></th></tr></thead><tbody>
+ ${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.facility)}</td><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.model)}</td><td>${esc(r.service)}</td><td>${esc(r.spare)}</td>
+ <td>${r.picture_url?`<a href="${esc(r.picture_url)}" target="_blank"><img class="th" src="${esc(r.picture_url)}"></a>`:''}</td><td>${r.qty==null?'':r.qty}</td><td>${r.est_cost==null?'':money(r.est_cost)}</td><td>${r.service==='User Training'?'':money(r.total_cost)}</td><td>${esc(r.remarks)}</td><td>${esc(r.assessor)}</td>
+ <td style="white-space:nowrap">${canEditN(r)?`<button class="s" onclick="needForm('${r.id}')">Edit</button> <button class="d" onclick="delRow('needs','${r.id}')">Del</button>`:''}</td></tr>`).join('')||'<tr><td colspan="15">No entries yet.</td></tr>'}
+ </tbody><tfoot><tr><th colspan="11" style="text-align:right">Grand total</th><th>${money(rows.reduce((a,r)=>a+Number(r.total_cost||0),0))}</th><th colspan="3"></th></tr></tfoot></table></div>`}
+function expNeeds(){csv('needs_assessment',D.needs.map(r=>({Facility:r.facility,Equipment:r.equipment,Location:r.location,Serial:r.serial,Model:r.model,Service:r.service,Spare_parts:r.spare,Qty:r.qty,Est_cost:r.est_cost,Total_cost:r.total_cost,Remarks:r.remarks,Assessor:r.assessor})))}
+function needForm(id){const r=D.needs.find(x=>x.id===id)||{},tr=r.service==='User Training';
+ openModal(`<h3 style="margin-top:0">${id?'Edit':'Add'} needs assessment entry</h3><form onsubmit="saveNeed(event,${id?`'${id}'`:'null'})">
+ <label>Name of facility<select name="facility" required>${ph(FAC,r.facility)}</select></label>
+ <label>Name of equipment<input name="equipment" value="${esc(r.equipment)}"></label>
+ <label>Location in facility<input name="location" value="${esc(r.location)}"></label>
+ <label>Serial number<input name="serial" value="${esc(r.serial)}"></label>
+ <label>Model<input name="model" value="${esc(r.model)}"></label>
+ <label>Type of service required<select name="service" required onchange="trainToggle(this.form)">${ph(NS,r.service)}</select></label>
+ <div id="tf"><label>Details of spare parts / accessories required<textarea name="spare" rows="2"${tr?' disabled':''}>${esc(r.spare)}</textarea></label>
+ <label>Picture (optional)<input name="pic" type="file" accept="image/*"${tr?' disabled':''}></label>
+ <label>Quantity needed (whole number)<input name="qty" inputmode="numeric" value="${r.qty==null?'':r.qty}" oninput="this.value=this.value.replace(/\\D/g,'');calc(this.form)"${tr?' disabled':''}></label>
+ <label>Estimated cost per unit (GHS, 2 decimals)<input name="cost" inputmode="decimal" value="${r.est_cost==null?'':Number(r.est_cost).toFixed(2)}" oninput="this.value=this.value.replace(/[^\\d.]/g,'').replace(/(\\..*)\\./g,'$1').replace(/(\\.\\d{2}).*/,'$1');calc(this.form)" onblur="if(this.value)this.value=Number(this.value).toFixed(2)"${tr?' disabled':''}></label>
+ <label>Total cost (GHS) – automatic<input name="total" readonly value="${tr?'':money(r.total_cost)}"></label></div>
+ <label>Remarks<textarea name="remarks" rows="2">${esc(r.remarks)}</textarea></label>
+ <label>Name of assessor<select name="assessor" required>${ph(ASR,r.assessor)}</select></label>
+ <div class="row"><button>Save</button><button type="button" class="s" onclick="closeModal()">Cancel</button></div></form>`)}
+function calc(f){const q=parseInt(f.qty.value)||0,c=parseFloat(f.cost.value)||0;f.total.value=money(q*c)}
+function trainToggle(f){const tr=f.service.value==='User Training';
+ document.querySelectorAll('#tf input,#tf textarea').forEach(i=>{i.disabled=tr;if(tr&&i.type!=='file')i.value='';if(tr&&i.type==='file')i.value=''});
+ const eq=f.equipment;if(tr)eq.required=false}
+async function saveNeed(e,id){e.preventDefault();const f=e.target.elements,tr=f.service.value==='User Training',old=D.needs.find(x=>x.id===id)||{};
+ if(!tr){if(!f.equipment.value.trim())return toast('Equipment name is required');
+  if(!/^\d+$/.test(f.qty.value))return toast('Quantity must be a whole number');
+  if(!/^\d+(\.\d{1,2})?$/.test(f.cost.value))return toast('Estimated cost must be a number with two decimal places')}
+ let pic=tr?null:(old.picture_url||null);const file=!tr&&f.pic.files[0];
+ if(file){const p=`${me.id}/${Date.now()}_${file.name.replace(/[^\w.-]/g,'_')}`,u=await sb.storage.from('needs-pics').upload(p,file);
+  if(u.error)return toast(u.error.message);pic=sb.storage.from('needs-pics').getPublicUrl(p).data.publicUrl}
+ const n=v=>v.trim()||null,row={facility:f.facility.value,equipment:n(f.equipment.value),location:n(f.location.value),serial:n(f.serial.value),model:n(f.model.value),service:f.service.value,
+  spare:tr?null:n(f.spare.value),picture_url:pic,qty:tr?null:parseInt(f.qty.value),est_cost:tr?null:Number(parseFloat(f.cost.value).toFixed(2)),remarks:n(f.remarks.value),assessor:f.assessor.value};
+ const r=id?await sb.from('needs').update(row).eq('id',id):await sb.from('needs').insert(row);
+ if(r.error)return toast(r.error.message);closeModal();toast('Saved');refresh()}
+async function delRow(t,id){if(!confirm('Delete this entry?'))return;const r=await sb.from(t).delete().eq('id',id);if(r.error)return toast(r.error.message);refresh()}
+
+/* ---------- TEAM MEMBERS (work done) ---------- */
+const canEditW=r=>isAdmin()||r.created_by===me.id;
+function teamV(){const noTeam=me.role==='team_member'&&!me.team;
+ return noTeam?'<div class="card">Your account has not been assigned to a team yet. Please contact the BME Executive.</div>':`
+ <div class="row"><button onclick="workForm()">+ Add work done</button>${isAdmin()?`<button class="s" onclick="csv('team_work',D.work.map(r=>({Facility:r.facility,Team:r.team,Equipment:r.equipment,Location:r.location,Serial:r.serial,Model:r.model,Service:r.service,Trained_on:r.equip_trained,Users_trained:r.users_trained})))">Export CSV</button>`:''}</div>
+ <div class="card tw"><table><thead><tr><th>#</th><th>Facility</th><th>Team</th><th>Equipment</th><th>Location</th><th>Serial No.</th><th>Model</th><th>Service done</th><th>Equipment trained on</th><th>Users trained</th><th></th></tr></thead><tbody>
+ ${D.work.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.facility)}</td><td>${esc(r.team)}</td><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.model)}</td><td>${esc(r.service)}</td><td>${esc(r.equip_trained)}</td><td>${r.users_trained==null?'':r.users_trained}</td>
+ <td style="white-space:nowrap">${canEditW(r)?`<button class="s" onclick="workForm('${r.id}')">Edit</button> <button class="d" onclick="delRow('team_work','${r.id}')">Del</button>`:''}</td></tr>`).join('')||'<tr><td colspan="11">No entries yet.</td></tr>'}</tbody></table></div>`}
+function workForm(id){const r=D.work.find(x=>x.id===id)||{},lock=me.role==='team_member'&&me.facility,fv=r.facility||(lock?me.facility:'');
+ openModal(`<h3 style="margin-top:0">${id?'Edit':'Add'} work done</h3><form onsubmit="saveWork(event,${id?`'${id}'`:'null'})">
+ <label>Facility<select name="facility" required${lock?' disabled':''}>${ph(FAC,fv)}</select></label>
+ <label>Equipment<input name="equipment" required value="${esc(r.equipment)}"></label>
+ <label>Location<input name="location" value="${esc(r.location)}"></label>
+ <label>Serial number<input name="serial" value="${esc(r.serial)}"></label>
+ <label>Model<input name="model" value="${esc(r.model)}"></label>
+ <label>Type of service done<select name="service" required onchange="document.getElementById('trn').classList.toggle('hide',this.value!=='User Trainings Done')">${ph(TS,r.service)}</select></label>
+ <div id="trn" class="${r.service==='User Trainings Done'?'':'hide'}"><label>Type of equipment trained on<input name="trained" value="${esc(r.equip_trained)}"></label>
+ <label>Number of users trained<input name="users" inputmode="numeric" value="${r.users_trained==null?'':r.users_trained}" oninput="this.value=this.value.replace(/\\D/g,'')"></label></div>
+ <div class="row"><button>Save</button><button type="button" class="s" onclick="closeModal()">Cancel</button></div></form>`)}
+async function saveWork(e,id){e.preventDefault();const f=e.target.elements,tr=f.service.value==='User Trainings Done',n=v=>v.trim()||null,old=D.work.find(x=>x.id===id);
+ if(tr&&(!f.trained.value.trim()||!/^\d+$/.test(f.users.value)))return toast('Enter equipment trained on and a whole number of users');
+ const team=old?old.team:(me.team||(isAdmin()?'Executive':null));if(!team)return toast('You have no team assigned');
+ const row={facility:(me.role==='team_member'&&me.facility)||f.facility.value,equipment:n(f.equipment.value),location:n(f.location.value),serial:n(f.serial.value),model:n(f.model.value),service:f.service.value,
+  equip_trained:tr?n(f.trained.value):null,users_trained:tr?parseInt(f.users.value):null,team};
+ if(!row.facility)return toast('Select a facility');
+ const r=id?await sb.from('team_work').update(row).eq('id',id):await sb.from('team_work').insert(row);
+ if(r.error)return toast(r.error.message);closeModal();toast('Saved');refresh()}
+
+/* ---------- FACILITIES ---------- */
+const showDone=()=>me.role!=='needs_assessment'||me.can_view_teams;
+function facSum(f){const n=D.needs.filter(x=>x.facility===f),w=D.work.filter(x=>x.facility===f),c=(a,k,v)=>a.filter(x=>x[k]===v).length;
+ return{f,n,w,assessed:n.filter(x=>x.service!=='User Training').length,pmN:c(n,'service','Preventive Maintenance'),cmN:c(n,'service','Corrective Maintenance'),trN:c(n,'service','User Training'),
+  pmD:c(w,'service','Preventive Maintenance Done'),cmD:c(w,'service','Corrective Maintenance Done'),trD:c(w,'service','User Trainings Done'),users:w.reduce((a,x)=>a+(x.users_trained||0),0)}}
+function facV(){const d=showDone();
+ return (isAdmin()?`<div class="row"><button class="s" onclick="csv('facilities_summary',FAC.map(facSum).map(s=>({Facility:s.f,Equipment_assessed:s.assessed,PM_needed:s.pmN,CM_needed:s.cmN,Trainings_needed:s.trN,PM_done:s.pmD,CM_done:s.cmD,Trainings_done:s.trD})))">Export CSV</button></div>`:'')+
+ FAC.map(facSum).map(s=>`<div class="card tw"><h3 style="margin-top:0">${esc(s.f)}</h3><table><thead><tr><th>Equipment assessed</th><th>Preventive maint. needed</th><th>Corrective maint. needed</th><th>User trainings needed</th>${d?'<th>Preventive maint. done</th><th>Corrective maint. done</th><th>User trainings done</th>':''}</tr></thead><tbody>
+ <tr class="sum" onclick="this.nextElementSibling.classList.toggle('hide')" title="Click for details"><td>${s.assessed}</td><td>${s.pmN}</td><td>${s.cmN}</td><td>${s.trN}</td>${d?`<td>${s.pmD}</td><td>${s.cmD}</td><td>${s.trD}</td>`:''}</tr>
+ <tr class="hide"><td colspan="7"><b>Needs assessment details</b>${s.n.length?`<table><tr><th>Equipment</th><th>Location</th><th>Serial</th><th>Service</th><th>Spare parts</th><th>Qty</th><th>Total (GHS)</th><th>Assessor</th></tr>${s.n.map(r=>`<tr><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.service)}</td><td>${esc(r.spare)}</td><td>${r.qty==null?'':r.qty}</td><td>${r.service==='User Training'?'':money(r.total_cost)}</td><td>${esc(r.assessor)}</td></tr>`).join('')}</table>`:'<p>None.</p>'}
+ ${d?`<b>Work done</b> (users trained: ${s.users})${s.w.length?`<table><tr><th>Team</th><th>Equipment</th><th>Location</th><th>Serial</th><th>Service</th><th>Trained on</th><th>Users</th></tr>${s.w.map(r=>`<tr><td>${esc(r.team)}</td><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.service)}</td><td>${esc(r.equip_trained)}</td><td>${r.users_trained==null?'':r.users_trained}</td></tr>`).join('')}</table>`:'<p>None.</p>'}`:''}</td></tr></tbody></table></div>`).join('')}
+
+/* ---------- USERS ---------- */
+function usersV(){const ex=me.role==='executive',dis=ex?'':' disabled';
+ return `<div class="row">${isAdmin()?`<button class="s" onclick="csv('users',D.users.map(u=>({Name:u.full_name,Email:u.email,Phone:u.phone,Role:ROLES[u.role],Team:u.team,Facility:u.facility})))">Export CSV</button>`:''}<small>New users register themselves on the sign-in page and appear here as Viewers.${ex?'':' Only a BME Executive can assign roles.'}</small></div>
+ <div class="card tw"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Team</th><th>Assigned facility</th><th>View team data</th><th></th></tr></thead><tbody>
+ ${D.users.map(u=>`<tr><td>${esc(u.full_name)}</td><td>${esc(u.email)}</td><td>${esc(u.phone)}</td>
+ <td><select id="r_${u.id}"${dis}>${opts(Object.keys(ROLES).map(k=>ROLES[k]),ROLES[u.role])}</select></td>
+ <td><input id="t_${u.id}" value="${esc(u.team)}" placeholder="e.g. Team 1"${dis}></td>
+ <td><select id="f_${u.id}"${dis}><option value="">—</option>${opts(FAC,u.facility)}</select></td>
+ <td><input type="checkbox" id="v_${u.id}" style="width:auto"${u.can_view_teams?' checked':''}${dis}></td>
+ <td style="white-space:nowrap">${ex?`<button onclick="saveUser('${u.id}')">Save</button> ${u.id!==me.id?`<button class="d" onclick="delUser('${u.id}')">Remove</button>`:''}`:''}</td></tr>`).join('')}</tbody></table></div>`}
+async function saveUser(id){const g=k=>$('#'+k+'_'+id),role=Object.keys(ROLES).find(k=>ROLES[k]===g('r').value);
+ const r=await sb.from('profiles').update({role,team:g('t').value.trim()||null,facility:g('f').value||null,can_view_teams:g('v').checked}).eq('id',id);
+ if(r.error)return toast(r.error.message);toast('User updated');if(id===me.id)me=(await sb.from('profiles').select('*').eq('id',id).single()).data;refresh()}
+async function delUser(id){if(!confirm('Permanently remove this user?'))return;const r=await sb.rpc('delete_user',{uid:id});if(r.error)return toast(r.error.message);toast('User removed');refresh()}
+
+/* ---------- SETTINGS ---------- */
+function setV(){return `<div class="grid"><div class="card"><h3 style="margin-top:0">My details</h3><form onsubmit="saveMe(event)">
+ <label>Full name<input name="fname" required value="${esc(me.full_name)}"></label><label>Email<input name="email" type="email" required value="${esc(me.email)}"></label>
+ <label>Telephone (login ID – contact an executive to change)<input value="${esc(me.phone)}" disabled></label><button>Save details</button></form></div>
+ <div class="card"><h3 style="margin-top:0">Change password</h3><form onsubmit="savePw(event)"><label>New password<input name="p1" type="password" minlength="6" required></label>
+ <label>Confirm new password<input name="p2" type="password" minlength="6" required></label><button>Update password</button></form></div>
+ <div class="card"><h3 style="margin-top:0">Appearance</h3><button class="s" onclick="setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');render()">Toggle dark / light mode</button></div></div>`}
+async function saveMe(e){e.preventDefault();const f=e.target.elements,r=await sb.from('profiles').update({full_name:f.fname.value.trim(),email:f.email.value.trim()}).eq('id',me.id);
+ if(r.error)return toast(r.error.message);me.full_name=f.fname.value.trim();me.email=f.email.value.trim();toast('Details updated');shell();go('settings')}
+async function savePw(e){e.preventDefault();const f=e.target.elements;if(f.p1.value!==f.p2.value)return toast('Passwords do not match');
+ const r=await sb.auth.updateUser({password:f.p1.value});if(r.error)return toast(r.error.message);e.target.reset();toast('Password changed')}
+init();
+</script></body></html>
