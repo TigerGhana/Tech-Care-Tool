@@ -2,30 +2,38 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TECH-CARE OUTREACH TOOL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f1f5f9;--cd:#fff;--tx:#0f172a;--mu:#64748b;--bd:#e2e8f0;--pr:#0d9488;--sb:#0f766e;--dg:#dc2626}
-:root[data-theme=dark]{--bg:#0b1220;--cd:#16213a;--tx:#e5e7eb;--mu:#94a3b8;--bd:#26344f;--pr:#2dd4bf;--sb:#0a1a2e}
-*{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;background:var(--bg);color:var(--tx)}
-.app{display:flex;min-height:100vh}aside{width:220px;background:var(--sb);color:#fff;padding:16px;display:flex;flex-direction:column;gap:12px;flex-shrink:0}
-aside h2{font-size:15px;margin:0;letter-spacing:.5px}nav{display:flex;flex-direction:column;gap:4px;flex:1}
-nav a{padding:9px 12px;border-radius:8px;cursor:pointer;color:#e2e8f0}nav a.on,nav a:hover{background:rgba(255,255,255,.18);color:#fff}
-.me{font-size:13px}main{flex:1;padding:20px;min-width:0}h1{margin:0 0 14px;font-size:22px}
-.card{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:16px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
-.kpi b{display:block;font-size:26px;color:var(--pr)}.cc{position:relative;height:260px}
-.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:7px 9px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}th{color:var(--mu);white-space:nowrap}
-button,.btn{background:var(--pr);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px}button.s{background:transparent;color:var(--pr);border:1px solid var(--pr)}button.d{background:var(--dg)}
-input,select,textarea{width:100%;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);color:var(--tx);font:inherit}input:disabled,select:disabled{opacity:.5}
-label{display:block;margin-bottom:10px;font-size:12px;color:var(--mu)}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.row>*{width:auto}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9;padding:10px}.box{background:var(--cd);border-radius:12px;padding:20px;width:560px;max-width:100%;max-height:92vh;overflow:auto}
-.hide{display:none!important}.auth{max-width:380px;margin:6vh auto}.auth .card{padding:24px}.err{color:var(--dg);min-height:18px;font-size:13px}
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:8px;display:none;z-index:99}#toast.show{display:block}
-.sum{cursor:pointer}.sum:hover{background:rgba(13,148,136,.08)}img.th{width:36px;height:36px;object-fit:cover;border-radius:4px}
-@media(max-width:700px){.app{flex-direction:column}aside{width:auto}nav{flex-direction:row;flex-wrap:wrap}}
+:root{--bg:#eef6ff;--cd:#fff;--tx:#0f2942;--mu:#6b86a1;--bd:#e1edf9;--pr:#0ea5e9;--sb1:#38bdf8;--sb2:#0284c7;--dg:#ef4444;--sh:0 6px 24px rgba(2,132,199,.09)}
+:root[data-theme=dark]{--bg:#09131f;--cd:#0f2133;--tx:#e6f1fb;--mu:#8fa9c2;--bd:#1b3550;--pr:#38bdf8;--sh:0 6px 24px rgba(0,0,0,.4)}
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 Inter,system-ui,sans-serif;background:radial-gradient(900px 400px at 15% -5%,rgba(56,189,248,.28),transparent),var(--bg);color:var(--tx);-webkit-font-smoothing:antialiased}
+.app{display:flex;min-height:100vh}aside{width:236px;background:linear-gradient(170deg,var(--sb1),var(--sb2));color:#fff;padding:20px 14px;display:flex;flex-direction:column;gap:14px;flex-shrink:0;position:sticky;top:0;height:100vh;box-shadow:var(--sh)}
+aside h2{font-size:15px;margin:0 6px;font-weight:700;letter-spacing:.6px;line-height:1.3}nav{display:flex;flex-direction:column;gap:4px;flex:1}
+nav a{padding:10px 12px;border-radius:12px;cursor:pointer;color:#e0f4ff;font-weight:500;transition:.15s}nav a.on{background:#fff;color:#0369a1;box-shadow:0 4px 12px rgba(0,0,0,.12)}nav a:hover:not(.on){background:rgba(255,255,255,.22)}
+.me{font-size:13px;background:rgba(255,255,255,.16);padding:12px;border-radius:14px}main{flex:1;padding:28px;min-width:0}h1{margin:0 0 18px;font-size:26px;font-weight:700;letter-spacing:-.4px}h3{font-weight:600}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:18px;padding:18px;margin-bottom:18px;box-shadow:var(--sh)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:18px}
+.kpi{background:linear-gradient(135deg,var(--cd),rgba(56,189,248,.12));color:var(--mu);font-weight:500}.kpi b{display:block;font-size:30px;font-weight:700;color:var(--pr);letter-spacing:-1px}.cc{position:relative;height:260px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:9px 11px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:top}th{color:var(--mu);white-space:nowrap;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px;background:rgba(14,165,233,.07)}tbody tr:hover{background:rgba(14,165,233,.05)}
+button,.btn{background:linear-gradient(135deg,#38bdf8,#0ea5e9);color:#fff;border:0;border-radius:10px;padding:9px 15px;cursor:pointer;font:600 13px Inter,system-ui,sans-serif;text-decoration:none;display:inline-block;box-shadow:0 3px 10px rgba(14,165,233,.3);transition:.15s}button:hover,.btn:hover{transform:translateY(-1px)}
+button.s{background:transparent;color:var(--pr);border:1px solid var(--pr);box-shadow:none}button.d{background:var(--dg);box-shadow:none}select.btn{width:auto}select.btn option{color:#000}
+input,select,textarea{width:100%;padding:9px 11px;border:1px solid var(--bd);border-radius:10px;background:var(--cd);color:var(--tx);font:inherit}input:focus,select:focus,textarea:focus{outline:2px solid rgba(14,165,233,.4)}input:disabled,select:disabled,textarea:disabled{opacity:.45}
+label{display:block;margin-bottom:11px;font-size:12px;color:var(--mu);font-weight:500}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}.row>*{width:auto}
+.modal{position:fixed;inset:0;background:rgba(8,30,55,.5);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:9;padding:10px}.box{background:var(--cd);border-radius:20px;padding:22px;width:580px;max-width:100%;max-height:92vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.hide{display:none!important}.auth{max-width:400px;margin:9vh auto}.auth .card{padding:28px}.err{color:var(--dg);min-height:18px;font-size:13px}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#0f2942;color:#fff;padding:11px 18px;border-radius:12px;display:none;z-index:99}#toast.show{display:block}
+.sum{cursor:pointer}.sum:hover{background:rgba(14,165,233,.1)}img.th{width:36px;height:36px;object-fit:cover;border-radius:6px}img.qr{width:48px;height:48px;cursor:pointer;border:1px solid var(--bd);border-radius:6px;background:#fff}
+.pill{padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap}.pm{background:#dbeafe;color:#1d4ed8}.cm{background:#fef3c7;color:#b45309}.tr{background:#ede9fe;color:#6d28d9}
+@media(max-width:760px){.app{flex-direction:column}aside{width:auto;height:auto;position:static}nav{flex-direction:row;flex-wrap:wrap}main{padding:14px}}
 </style></head><body>
 <div id="root"></div><div id="modal" class="modal hide"></div><div id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
 /* ====== CONFIG: paste your Supabase values here when deploying ====== */
 const SUPABASE_URL='https://paufxrjjenmctqyuqfgl.supabase.co';
@@ -38,6 +46,8 @@ const TS=['Preventive Maintenance Done','Corrective Maintenance Done','User Trai
 const ROLES={executive:'BME Executive',secretariat:'Secretariat Team',needs_assessment:'Needs Assessment Team',team_member:'Team Member',viewer:'Viewer'};
 const ALL=['overview','needs','facilities','users','team','settings'];
 const TABS={executive:ALL,secretariat:ALL,needs_assessment:['overview','needs','facilities','settings'],team_member:['overview','team','settings'],viewer:['overview','settings']};
+if(window.qrcode&&qrcode.stringToBytesFuncs)qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8'];
+const IC={overview:'📊',needs:'📋',facilities:'🏥',users:'👥',team:'🛠️',settings:'⚙️'};
 const TL={overview:'Overview',needs:'Needs Assessment',facilities:'Facilities',users:'Users',team:'Team Members',settings:'Settings'};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -45,7 +55,7 @@ const opts=(a,v)=>a.map(x=>`<option${x===v?' selected':''}>${esc(x)}</option>`).
 const ph=(a,v)=>'<option value="">Select…</option>'+opts(a,v);
 const money=n=>Number(n||0).toLocaleString('en-GH',{minimumFractionDigits:2,maximumFractionDigits:2});
 const mail=p=>p+'@techcare.app';
-let sb,me,tab='overview',D={needs:[],work:[],users:[],stats:[]},charts=[],nfac='';
+let sb,me,tab='overview',D={needs:[],work:[],users:[],stats:[],roster:[]},charts=[],nfac='';
 const isAdmin=()=>me&&(me.role==='executive'||me.role==='secretariat');
 const toast=m=>{const t=$('#toast');t.textContent=m;t.className='show';clearTimeout(toast.t);toast.t=setTimeout(()=>t.className='',3500)};
 const openModal=h=>{const m=$('#modal');m.innerHTML='<div class="box">'+h+'</div>';m.classList.remove('hide')};
@@ -93,6 +103,7 @@ async function loadAll(){
  const r=me.role,q=[],E=(x,k)=>{if(x.error)toast(x.error.message);D[k]=x.data||[]};
  q.push(sb.rpc('overview_stats').then(x=>E(x,'stats')));
  if(['executive','secretariat','needs_assessment'].includes(r))q.push(sb.from('needs').select('*').order('created_at',{ascending:false}).then(x=>E(x,'needs')));
+ if(['executive','secretariat','team_member'].includes(r))q.push(sb.rpc('team_roster').then(x=>E(x,'roster')));
  if(r!=='viewer')q.push(sb.from('team_work').select('*').order('created_at',{ascending:false}).then(x=>E(x,'work')));
  if(isAdmin())q.push(sb.from('profiles').select('*').order('created_at').then(x=>E(x,'users')));
  await Promise.all(q)}
@@ -100,7 +111,7 @@ async function refresh(){await loadAll();render()}
 
 /* ---------- SHELL ---------- */
 function shell(){const T=TABS[me.role]||TABS.viewer;
- $('#root').innerHTML=`<div class="app"><aside><h2>TECH-CARE<br>OUTREACH TOOL</h2><nav>${T.map(t=>`<a id="n_${t}" onclick="go('${t}')">${TL[t]}</a>`).join('')}</nav>
+ $('#root').innerHTML=`<div class="app"><aside><h2>TECH-CARE<br>OUTREACH TOOL</h2><nav>${T.map(t=>`<a id="n_${t}" onclick="go('${t}')">${IC[t]} ${TL[t]}</a>`).join('')}</nav>
  <div class="me"><b>${esc(me.full_name)}</b><br><small>${ROLES[me.role]}${me.team?' · '+esc(me.team):''}</small><br><br><button class="s" style="color:#fff;border-color:#fff" onclick="sb.auth.signOut()">Sign out</button></div></aside><main id="main"></main></div>`;render()}
 function go(t){tab=t;render()}
 function render(){document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.id==='n_'+tab));
@@ -114,41 +125,113 @@ function overview(){const s=ovStats(),sum=k=>s.reduce((a,x)=>a+Number(x[k]),0);
  return `<div class="kpis">${[['assessed','Equipment assessed'],['pm_done','Preventive maintenance done'],['cm_done','Corrective maintenance done'],['tr_done','User trainings organised']].map(([k,l])=>`<div class="card kpi"><b>${sum(k)}</b>${l}</div>`).join('')}</div>
  <div class="grid">${['c1','c2','c3','c4'].map(i=>`<div class="card"><div class="cc"><canvas id="${i}"></canvas></div></div>`).join('')}</div>`}
 function drawCharts(){const s=ovStats(),tx=getComputedStyle(document.documentElement).getPropertyValue('--tx').trim();
- [['c1','assessed','Equipment assessed','#2563eb'],['c2','tr_done','User trainings organised','#9333ea'],['c3','pm_done','Preventive maintenance done','#0d9488'],['c4','cm_done','Corrective maintenance done','#ea580c']].forEach(([id,k,l,c])=>{
+ [['c1','assessed','Equipment assessed','#0ea5e9'],['c2','tr_done','User trainings organised','#6366f1'],['c3','pm_done','Preventive maintenance done','#14b8a6'],['c4','cm_done','Corrective maintenance done','#f59e0b']].forEach(([id,k,l,c])=>{
  charts.push(new Chart($('#'+id),{type:'bar',data:{labels:s.map(x=>x.facility.replace(' Hospital','')),datasets:[{data:s.map(x=>Number(x[k])),backgroundColor:c,borderRadius:6}]},
  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},title:{display:true,text:l,color:tx}},scales:{x:{ticks:{color:tx}},y:{beginAtZero:true,ticks:{precision:0,color:tx}}}}}))})}
+
+/* ---------- EXPORT / IMPORT / QR HELPERS ---------- */
+const NC=[['Facility','facility'],['Equipment','equipment'],['Location','location'],['Serial No.','serial'],['Model','model'],['Service Required','service'],['Spare Parts / Accessories','spare'],['Quantity','qty'],['Est. Cost (GHS)','est_cost'],['Total Cost (GHS)','total_cost'],['Remarks','remarks'],['Assessor','assessor']];
+const WC=[['Facility','facility'],['Team','team'],['Equipment','equipment'],['Location','location'],['Serial No.','serial'],['Model','model'],['Service Done','service'],['Equipment Trained On','equip_trained'],['Users Trained','users_trained'],['Remarks','remarks']];
+const TC=WC.filter(c=>c[1]!=='team');
+const bdg=s=>s?`<span class="pill ${/Corrective/.test(s)?'cm':/Preventive/.test(s)?'pm':'tr'}">${esc(s)}</span>`:'';
+function dl(b,n){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000)}
+const stamp=()=>new Date().toISOString().slice(0,10);
+const mapRows=(rows,C)=>rows.map(r=>Object.fromEntries(C.map(([l,k])=>[l,r[k]==null?'':r[k]])));
+function rowsFor(id){
+ if(id==='needs')return mapRows(D.needs,NC);
+ if(id==='team')return mapRows(D.work,WC);
+ if(id==='users')return D.users.map(u=>({Name:u.full_name,Email:u.email,Phone:u.phone,Role:ROLES[u.role],Team:u.team||'',Facility:u.facility||''}));
+ return FAC.map(facSum).map(s=>({Facility:s.f,'Equipment assessed':s.assessed,'PM needed':s.pmN,'CM needed':s.cmN,'Trainings needed':s.trN,'PM done':s.pmD,'CM done':s.cmD,'Trainings done':s.trD}))}
+const expBtn=id=>isAdmin()?`<select class="btn" onchange="doExp(this,'${id}')"><option value="">⬇ Export…</option><option value="xlsx">Excel (.xlsx)</option><option value="pdf">PDF</option><option value="csv">CSV</option></select>`:'';
+async function doExp(sel,id){const f=sel.value;sel.selectedIndex=0;if(!f)return;const rows=rowsFor(id);if(!rows.length)return toast('Nothing to export');
+ const t={needs:'Needs Assessment',team:'Team Members Work',users:'Users',facilities:'Facilities Summary'}[id],fn='techcare_'+id+'_'+stamp(),k=Object.keys(rows[0]);
+ try{if(f==='csv')return csv('techcare_'+id,rows);
+ if(f==='xlsx'){const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet(t);ws.addRow(k);rows.forEach(r=>ws.addRow(k.map(c=>r[c])));
+  ws.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF0EA5E9'}}});
+  k.forEach((c,i)=>{ws.getColumn(i+1).width=Math.min(40,Math.max(13,c.length+4))});ws.views=[{state:'frozen',ySplit:1}];
+  return dl(new Blob([await wb.xlsx.writeBuffer()],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),fn+'.xlsx')}
+ const d=new jspdf.jsPDF('l','pt','a4');d.setFontSize(14);d.text('TECH-CARE OUTREACH TOOL - '+t,40,36);d.setFontSize(8);d.text('Generated '+new Date().toLocaleString(),40,50);
+ d.autoTable({head:[k],body:rows.map(r=>k.map(c=>String(r[c]))),startY:60,styles:{fontSize:7,cellPadding:3},headStyles:{fillColor:[14,165,233]}});d.save(fn+'.pdf')}
+ catch(x){toast('Export failed: '+x.message)}}
+async function tmpl(kind){const N=kind==='needs',C=N?NC:TC,wb=new ExcelJS.Workbook(),ws=wb.addWorksheet(N?'Needs Assessment':'Team Work'),ix=l=>C.findIndex(c=>c[0]===l)+1,L=l=>String.fromCharCode(64+ix(l));
+ ws.addRow(C.map(c=>c[0]));ws.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF0EA5E9'}}});
+ C.forEach((c,i)=>{ws.getColumn(i+1).width=Math.max(16,c[0].length+4)});ws.views=[{state:'frozen',ySplit:1}];
+ for(let r=2;r<=501;r++){const dv=(l,v)=>{ws.getCell(L(l)+r).dataValidation=Object.assign({allowBlank:true,showErrorMessage:true,errorStyle:'stop',errorTitle:'Invalid entry'},v)};
+  dv('Facility',{type:'list',formulae:['"'+FAC.join(',')+'"'],error:'Pick a facility from the list'});
+  if(N){dv('Service Required',{type:'list',formulae:['"'+NS.join(',')+'"'],error:'Pick a service from the list'});dv('Assessor',{type:'list',formulae:['"'+ASR.join(',')+'"'],error:'Pick an assessor from the list'});
+   dv('Quantity',{type:'whole',operator:'greaterThanOrEqual',formulae:[0],error:'Whole numbers only'});dv('Est. Cost (GHS)',{type:'decimal',operator:'greaterThanOrEqual',formulae:[0],error:'Numbers only (2 decimals)'});
+   ws.getCell(L('Est. Cost (GHS)')+r).numFmt='0.00';const q=L('Quantity')+r,e=L('Est. Cost (GHS)')+r,t=ws.getCell(L('Total Cost (GHS)')+r);t.value={formula:`IF(OR(${q}="",${e}=""),"",ROUND(${q}*${e},2))`};t.numFmt='#,##0.00'}
+  else{dv('Service Done',{type:'list',formulae:['"'+TS.join(',')+'"'],error:'Pick a service from the list'});dv('Users Trained',{type:'whole',operator:'greaterThanOrEqual',formulae:[0],error:'Whole numbers only'})}}
+ const ins=wb.addWorksheet('Instructions');['TECH-CARE OUTREACH TOOL - bulk import template','Fill the first sheet from row 2. Do not rename or reorder the header row.','Choose Facility'+(N?', Service Required and Assessor':' and Service Done')+' from the drop-down lists.',
+  N?'Quantity = whole numbers only. Est. Cost = numbers with up to 2 decimals. Total Cost is calculated automatically (leave it alone).':'For User Trainings Done fill Equipment Trained On and Users Trained (whole number).',
+  N?'User Training rows: leave Serial No., Model, Spare Parts, Quantity and Est. Cost blank.':'For User Trainings Done leave Serial No. and Model blank.','Then use Import Excel in the app. If any row has an error, nothing is imported and the faulty rows are listed.'].forEach(t=>ins.addRow([t]));ins.getColumn(1).width=110;
+ dl(new Blob([await wb.xlsx.writeBuffer()],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'techcare_'+(N?'needs_assessment':'team_work')+'_template.xlsx')}
+function impPick(kind){const i=document.createElement('input');i.type='file';i.accept='.xlsx';i.onchange=()=>impRun(kind,i.files[0]);i.click()}
+function cvl(c){let v=c.value;if(v&&typeof v==='object'){if('result' in v)v=v.result;else if(v.richText)v=v.richText.map(t=>t.text).join('');else if(v.text)v=v.text}return v==null?'':String(v).trim()}
+const pick=(v,a)=>a.find(x=>x.toLowerCase()===String(v).toLowerCase());
+async function impRun(kind,file){if(!file)return;const N=kind==='needs',C=N?NC:TC;
+ try{const wb=new ExcelJS.Workbook();await wb.xlsx.load(await file.arrayBuffer());const ws=wb.worksheets[0],hdr={};ws.getRow(1).eachCell((c,i)=>{hdr[cvl(c)]=i});
+  const miss=C.filter(c=>c[1]!=='total_cost'&&!hdr[c[0]]).map(c=>c[0]);if(miss.length)return toast('Missing columns: '+miss.join(', ')+' - please use the template');
+  const team=me.team||(isAdmin()?'Executive':null);if(!N&&!team)return toast('You have no team assigned');
+  const rows=[],errs=[],n=v=>v||null;
+  ws.eachRow((row,rn)=>{if(rn===1)return;const g=l=>hdr[l]?cvl(row.getCell(hdr[l])):'';if(C.every(c=>c[1]==='total_cost'||!g(c[0])))return;
+   const e=[],fac=pick(g('Facility'),FAC);if(!fac)e.push('Facility');
+   if(!N&&me.role==='team_member'&&me.facility&&fac&&fac!==me.facility)e.push('Facility must be '+me.facility);
+   if(N){const sv=pick(g('Service Required'),NS),as=pick(g('Assessor'),ASR),tr=sv==='User Training';let qty=null,cost=null;
+    if(!sv)e.push('Service Required');if(!as)e.push('Assessor');
+    if(!tr){if(!g('Equipment'))e.push('Equipment');if(!/^\d+$/.test(g('Quantity')))e.push('Quantity (whole number)');else qty=+g('Quantity');
+     const c=g('Est. Cost (GHS)');if(!/^\d+(\.\d{1,2})?$/.test(c))e.push('Est. Cost (max 2 decimals)');else cost=+(+c).toFixed(2)}
+    if(!e.length)rows.push({facility:fac,equipment:n(g('Equipment')),location:n(g('Location')),serial:tr?null:n(g('Serial No.')),model:tr?null:n(g('Model')),service:sv,spare:tr?null:n(g('Spare Parts / Accessories')),qty,est_cost:cost,remarks:n(g('Remarks')),assessor:as})}
+   else{const sv=pick(g('Service Done'),TS),tr=sv==='User Trainings Done';let tn=null,un=null;if(!sv)e.push('Service Done');if(!g('Equipment'))e.push('Equipment');
+    if(tr){tn=g('Equipment Trained On');un=g('Users Trained');if(!tn)e.push('Equipment Trained On');if(!/^\d+$/.test(un))e.push('Users Trained (whole number)');else un=+un}
+    if(!e.length)rows.push({facility:fac,equipment:n(g('Equipment')),location:n(g('Location')),serial:tr?null:n(g('Serial No.')),model:tr?null:n(g('Model')),service:sv,equip_trained:tr?tn:null,users_trained:tr?un:null,remarks:n(g('Remarks')),team})}
+   if(e.length)errs.push('Row '+rn+': '+e.join(', '))});
+  if(errs.length)return openModal(`<h3 style="margin-top:0">Import stopped - fix these rows</h3><p>${errs.length} row(s) have problems. Nothing was imported.</p><ul>${errs.slice(0,25).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>${errs.length>25?'<p>…and more.</p>':''}<button onclick="closeModal()">Close</button>`);
+  if(!rows.length)return toast('No data rows found');if(!confirm('Import '+rows.length+' row(s)?'))return;
+  const t=N?'needs':'team_work';for(let i=0;i<rows.length;i+=200){const r=await sb.from(t).insert(rows.slice(i,i+200));if(r.error)return toast(r.error.message)}
+  toast(rows.length+' row(s) imported');refresh()}catch(x){toast('Could not read file: '+x.message)}}
+/* QR codes */
+const qtxt=(k,r)=>{const L=k==='needs'?[['Facility',r.facility],['Equipment',r.equipment],['Location',r.location],['Serial No.',r.serial],['Model',r.model],['Service',r.service],['Spare parts',r.spare],['Qty',r.qty],['Est. cost (GHS)',r.est_cost==null?null:money(r.est_cost)],['Total (GHS)',r.service==='User Training'?null:money(r.total_cost)],['Remarks',r.remarks],['Assessor',r.assessor]]
+ :[['Facility',r.facility],['Team',r.team],['Equipment',r.equipment],['Location',r.location],['Serial No.',r.serial],['Model',r.model],['Service',r.service],['Trained on',r.equip_trained],['Users trained',r.users_trained],['Remarks',r.remarks]];
+ return ('TECH-CARE OUTREACH\n'+L.filter(x=>x[1]!=null&&x[1]!=='').map(x=>x[0]+': '+x[1]).join('\n')).slice(0,1200)};
+function qrCv(text,px){const q=qrcode(0,'M');q.addData(text);q.make();const n=q.getModuleCount(),m=4,s=Math.max(1,Math.floor(px/(n+2*m))),c=document.createElement('canvas');c.width=c.height=s*(n+2*m);const x=c.getContext('2d');
+ x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.fillStyle='#000';for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))x.fillRect((k+m)*s,(r+m)*s,s,s);return c}
+const qrImg=(k,r,px)=>{try{return qrCv(qtxt(k,r),px).toDataURL('image/png')}catch(e){return ''}};
+function qrShow(k,id){const r=(k==='needs'?D.needs:D.work).find(x=>x.id===id);if(!r)return;const u=qrImg(k,r,600),nm=(r.equipment||r.service)+' - '+r.facility;
+ openModal(`<div style="text-align:center"><h3 style="margin-top:0">${esc(nm)}</h3><img src="${u}" style="width:280px;max-width:100%;border:1px solid var(--bd);border-radius:12px"><p><small>Scan with any phone camera to read this equipment's details</small></p>
+ <div class="row" style="justify-content:center"><a class="btn" download="QR_${esc((r.equipment||'entry').replace(/\W+/g,'_'))}.png" href="${u}">⬇ Download PNG</a><button onclick="qrPrint('${k}',['${id}'])">🖨 Print</button><button class="s" onclick="closeModal()">Close</button></div></div>`)}
+function qrPrint(k,ids){const L=k==='needs'?D.needs:D.work,h=ids.map(id=>{const r=L.find(x=>x.id===id);return r?`<div class="l"><img src="${qrImg(k,r,300)}"><b>${esc(r.equipment||r.service)}</b><br>${esc(r.facility)}${r.serial?'<br>S/N '+esc(r.serial):''}</div>`:''}).join('');
+ const w=window.open('','_blank');if(!w)return toast('Please allow pop-ups to print');w.document.write('<html><head><title>QR labels</title><style>body{font:12px Inter,Arial,sans-serif;margin:12px}.l{display:inline-block;width:190px;border:1px dashed #999;padding:8px;margin:4px;text-align:center;vertical-align:top}img{width:150px}</style></head><body>'+h+'</body></html>');w.document.close();setTimeout(()=>w.print(),400)}
+function qrPrintAll(k){const ids=(k==='needs'?D.needs.filter(r=>!nfac||r.facility===nfac):D.work).map(r=>r.id);if(!ids.length)return toast('No entries to print');qrPrint(k,ids)}
 
 /* ---------- NEEDS ASSESSMENT ---------- */
 const canEditN=r=>['executive','secretariat'].includes(me.role)||r.created_by===me.id;
 function needsV(){const rows=D.needs.filter(r=>!nfac||r.facility===nfac);
- return `<div class="row"><button onclick="needForm()">+ Add equipment</button><select onchange="nfac=this.value;render()"><option value="">All facilities</option>${opts(FAC,nfac)}</select>
- ${isAdmin()?`<button class="s" onclick="expNeeds()">Export CSV</button>`:''}</div>
- <div class="card tw"><table><thead><tr><th>#</th><th>Facility</th><th>Equipment</th><th>Location</th><th>Serial No.</th><th>Model</th><th>Service required</th><th>Spare parts / accessories</th><th>Pic</th><th>Qty</th><th>Est. cost (GHS)</th><th>Total (GHS)</th><th>Remarks</th><th>Assessor</th><th></th></tr></thead><tbody>
- ${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.facility)}</td><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.model)}</td><td>${esc(r.service)}</td><td>${esc(r.spare)}</td>
+ return `<div class="row"><button onclick="needForm()">+ Add equipment</button><select onchange="nfac=this.value;render()"><option value="">All facilities</option>${opts(FAC,nfac)}</select>${expBtn('needs')}<button class="s" onclick="impPick('needs')">⬆ Import Excel</button><button class="s" onclick="tmpl('needs')">📄 Template</button><button class="s" onclick="qrPrintAll('needs')">🖨 Print QR labels</button></div>
+ <div class="card tw"><table><thead><tr><th>#</th><th>Facility</th><th>Equipment</th><th>Location</th><th>Serial No.</th><th>Model</th><th>Service required</th><th>Spare parts / accessories</th><th>Pic</th><th>Qty</th><th>Est. cost (GHS)</th><th>Total (GHS)</th><th>Remarks</th><th>Assessor</th><th></th><th>QR code</th></tr></thead><tbody>
+ ${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.facility)}</td><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.model)}</td><td>${bdg(r.service)}</td><td>${esc(r.spare)}</td>
  <td>${r.picture_url?`<a href="${esc(r.picture_url)}" target="_blank"><img class="th" src="${esc(r.picture_url)}"></a>`:''}</td><td>${r.qty==null?'':r.qty}</td><td>${r.est_cost==null?'':money(r.est_cost)}</td><td>${r.service==='User Training'?'':money(r.total_cost)}</td><td>${esc(r.remarks)}</td><td>${esc(r.assessor)}</td>
- <td style="white-space:nowrap">${canEditN(r)?`<button class="s" onclick="needForm('${r.id}')">Edit</button> <button class="d" onclick="delRow('needs','${r.id}')">Del</button>`:''}</td></tr>`).join('')||'<tr><td colspan="15">No entries yet.</td></tr>'}
- </tbody><tfoot><tr><th colspan="11" style="text-align:right">Grand total</th><th>${money(rows.reduce((a,r)=>a+Number(r.total_cost||0),0))}</th><th colspan="3"></th></tr></tfoot></table></div>`}
-function expNeeds(){csv('needs_assessment',D.needs.map(r=>({Facility:r.facility,Equipment:r.equipment,Location:r.location,Serial:r.serial,Model:r.model,Service:r.service,Spare_parts:r.spare,Qty:r.qty,Est_cost:r.est_cost,Total_cost:r.total_cost,Remarks:r.remarks,Assessor:r.assessor})))}
-function needForm(id){const r=D.needs.find(x=>x.id===id)||{},tr=r.service==='User Training';
+ <td style="white-space:nowrap">${canEditN(r)?`<button class="s" onclick="needForm('${r.id}')">Edit</button> <button class="d" onclick="delRow('needs','${r.id}')">Del</button>`:''}</td>
+ <td><img class="qr" src="${qrImg('needs',r,120)}" title="Click to enlarge / download / print" onclick="qrShow('needs','${r.id}')"></td></tr>`).join('')||'<tr><td colspan="16">No entries yet.</td></tr>'}
+ </tbody><tfoot><tr><th colspan="11" style="text-align:right">Grand total</th><th>${money(rows.reduce((a,r)=>a+Number(r.total_cost||0),0))}</th><th colspan="4"></th></tr></tfoot></table></div>`}
+function needForm(id){const r=D.needs.find(x=>x.id===id)||{},tr=r.service==='User Training',dis=tr?' disabled':'';
  openModal(`<h3 style="margin-top:0">${id?'Edit':'Add'} needs assessment entry</h3><form onsubmit="saveNeed(event,${id?`'${id}'`:'null'})">
  <label>Name of facility<select name="facility" required>${ph(FAC,r.facility)}</select></label>
  <label>Name of equipment<input name="equipment" value="${esc(r.equipment)}"></label>
  <label>Location in facility<input name="location" value="${esc(r.location)}"></label>
- <label>Serial number<input name="serial" value="${esc(r.serial)}"></label>
- <label>Model<input name="model" value="${esc(r.model)}"></label>
+ <label class="tg">Serial number<input name="serial" value="${esc(r.serial)}"${dis}></label>
+ <label class="tg">Model<input name="model" value="${esc(r.model)}"${dis}></label>
  <label>Type of service required<select name="service" required onchange="trainToggle(this.form)">${ph(NS,r.service)}</select></label>
- <div id="tf"><label>Details of spare parts / accessories required<textarea name="spare" rows="2"${tr?' disabled':''}>${esc(r.spare)}</textarea></label>
- <label>Picture (optional)<input name="pic" type="file" accept="image/*"${tr?' disabled':''}></label>
- <label>Quantity needed (whole number)<input name="qty" inputmode="numeric" value="${r.qty==null?'':r.qty}" oninput="this.value=this.value.replace(/\\D/g,'');calc(this.form)"${tr?' disabled':''}></label>
- <label>Estimated cost per unit (GHS, 2 decimals)<input name="cost" inputmode="decimal" value="${r.est_cost==null?'':Number(r.est_cost).toFixed(2)}" oninput="this.value=this.value.replace(/[^\\d.]/g,'').replace(/(\\..*)\\./g,'$1').replace(/(\\.\\d{2}).*/,'$1');calc(this.form)" onblur="if(this.value)this.value=Number(this.value).toFixed(2)"${tr?' disabled':''}></label>
+ <div id="tf" class="tg"><label>Details of spare parts / accessories required<textarea name="spare" rows="2"${dis}>${esc(r.spare)}</textarea></label>
+ <label>Picture (optional)<input name="pic" type="file" accept="image/*"${dis}></label>
+ <label>Quantity needed (whole number)<input name="qty" inputmode="numeric" value="${r.qty==null?'':r.qty}" oninput="this.value=this.value.replace(/\\D/g,'');calc(this.form)"${dis}></label>
+ <label>Estimated cost per unit (GHS, 2 decimals)<input name="cost" inputmode="decimal" value="${r.est_cost==null?'':Number(r.est_cost).toFixed(2)}" oninput="this.value=this.value.replace(/[^\\d.]/g,'').replace(/(\\..*)\\./g,'$1').replace(/(\\.\\d{2}).*/,'$1');calc(this.form)" onblur="if(this.value)this.value=Number(this.value).toFixed(2)"${dis}></label>
  <label>Total cost (GHS) – automatic<input name="total" readonly value="${tr?'':money(r.total_cost)}"></label></div>
  <label>Remarks<textarea name="remarks" rows="2">${esc(r.remarks)}</textarea></label>
  <label>Name of assessor<select name="assessor" required>${ph(ASR,r.assessor)}</select></label>
  <div class="row"><button>Save</button><button type="button" class="s" onclick="closeModal()">Cancel</button></div></form>`)}
 function calc(f){const q=parseInt(f.qty.value)||0,c=parseFloat(f.cost.value)||0;f.total.value=money(q*c)}
-function trainToggle(f){const tr=f.service.value==='User Training';
- document.querySelectorAll('#tf input,#tf textarea').forEach(i=>{i.disabled=tr;if(tr&&i.type!=='file')i.value='';if(tr&&i.type==='file')i.value=''});
- const eq=f.equipment;if(tr)eq.required=false}
+function trainToggle(f){const tr=f.service.value==='User Training';document.querySelectorAll('.tg input,.tg textarea').forEach(i=>{i.disabled=tr;if(tr)i.value=''})}
 async function saveNeed(e,id){e.preventDefault();const f=e.target.elements,tr=f.service.value==='User Training',old=D.needs.find(x=>x.id===id)||{};
  if(!tr){if(!f.equipment.value.trim())return toast('Equipment name is required');
   if(!/^\d+$/.test(f.qty.value))return toast('Quantity must be a whole number');
@@ -156,36 +239,41 @@ async function saveNeed(e,id){e.preventDefault();const f=e.target.elements,tr=f.
  let pic=tr?null:(old.picture_url||null);const file=!tr&&f.pic.files[0];
  if(file){const p=`${me.id}/${Date.now()}_${file.name.replace(/[^\w.-]/g,'_')}`,u=await sb.storage.from('needs-pics').upload(p,file);
   if(u.error)return toast(u.error.message);pic=sb.storage.from('needs-pics').getPublicUrl(p).data.publicUrl}
- const n=v=>v.trim()||null,row={facility:f.facility.value,equipment:n(f.equipment.value),location:n(f.location.value),serial:n(f.serial.value),model:n(f.model.value),service:f.service.value,
+ const n=v=>v.trim()||null,row={facility:f.facility.value,equipment:n(f.equipment.value),location:n(f.location.value),serial:tr?null:n(f.serial.value),model:tr?null:n(f.model.value),service:f.service.value,
   spare:tr?null:n(f.spare.value),picture_url:pic,qty:tr?null:parseInt(f.qty.value),est_cost:tr?null:Number(parseFloat(f.cost.value).toFixed(2)),remarks:n(f.remarks.value),assessor:f.assessor.value};
  const r=id?await sb.from('needs').update(row).eq('id',id):await sb.from('needs').insert(row);
  if(r.error)return toast(r.error.message);closeModal();toast('Saved');refresh()}
 async function delRow(t,id){if(!confirm('Delete this entry?'))return;const r=await sb.from(t).delete().eq('id',id);if(r.error)return toast(r.error.message);refresh()}
 
-/* ---------- TEAM MEMBERS (work done) ---------- */
+/* ---------- TEAM MEMBERS ---------- */
 const canEditW=r=>isAdmin()||r.created_by===me.id;
-function teamV(){const noTeam=me.role==='team_member'&&!me.team;
- return noTeam?'<div class="card">Your account has not been assigned to a team yet. Please contact the BME Executive.</div>':`
- <div class="row"><button onclick="workForm()">+ Add work done</button>${isAdmin()?`<button class="s" onclick="csv('team_work',D.work.map(r=>({Facility:r.facility,Team:r.team,Equipment:r.equipment,Location:r.location,Serial:r.serial,Model:r.model,Service:r.service,Trained_on:r.equip_trained,Users_trained:r.users_trained})))">Export CSV</button>`:''}</div>
- <div class="card tw"><table><thead><tr><th>#</th><th>Facility</th><th>Team</th><th>Equipment</th><th>Location</th><th>Serial No.</th><th>Model</th><th>Service done</th><th>Equipment trained on</th><th>Users trained</th><th></th></tr></thead><tbody>
- ${D.work.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.facility)}</td><td>${esc(r.team)}</td><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.model)}</td><td>${esc(r.service)}</td><td>${esc(r.equip_trained)}</td><td>${r.users_trained==null?'':r.users_trained}</td>
- <td style="white-space:nowrap">${canEditW(r)?`<button class="s" onclick="workForm('${r.id}')">Edit</button> <button class="d" onclick="delRow('team_work','${r.id}')">Del</button>`:''}</td></tr>`).join('')||'<tr><td colspan="11">No entries yet.</td></tr>'}</tbody></table></div>`}
-function workForm(id){const r=D.work.find(x=>x.id===id)||{},lock=me.role==='team_member'&&me.facility,fv=r.facility||(lock?me.facility:'');
+function rosterV(){const R=[...D.roster].sort((a,b)=>(a.team||'').localeCompare(b.team||'')||(a.full_name||'').localeCompare(b.full_name||''));
+ return `<div class="card tw"><h3 style="margin-top:0">Team members (${R.length})</h3><table><thead><tr><th>#</th><th>Name</th><th>Telephone</th><th>Team</th><th>Assigned facility</th></tr></thead><tbody>
+ ${R.map((u,i)=>`<tr><td>${i+1}</td><td>${esc(u.full_name)}</td><td>${esc(u.phone)}</td><td>${esc(u.team)}</td><td>${esc(u.facility)}</td></tr>`).join('')||'<tr><td colspan="5">No team members assigned yet. The BME Executive assigns the Team Member role and team in the Users tab.</td></tr>'}</tbody></table></div>`}
+function teamV(){if(me.role==='team_member'&&!me.team)return '<div class="card">Your account has not been assigned to a team yet. Please contact the BME Executive.</div>';
+ return rosterV()+`<div class="row"><button onclick="workForm()">+ Add work done</button>${expBtn('team')}<button class="s" onclick="impPick('team')">⬆ Import Excel</button><button class="s" onclick="tmpl('team')">📄 Template</button><button class="s" onclick="qrPrintAll('team')">🖨 Print QR labels</button></div>
+ <div class="card tw"><table><thead><tr><th>#</th><th>Facility</th><th>Team</th><th>Equipment</th><th>Location</th><th>Serial No.</th><th>Model</th><th>Service done</th><th>Equipment trained on</th><th>Users trained</th><th>Remarks</th><th></th><th>QR code</th></tr></thead><tbody>
+ ${D.work.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.facility)}</td><td>${esc(r.team)}</td><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.model)}</td><td>${bdg(r.service)}</td><td>${esc(r.equip_trained)}</td><td>${r.users_trained==null?'':r.users_trained}</td><td>${esc(r.remarks)}</td>
+ <td style="white-space:nowrap">${canEditW(r)?`<button class="s" onclick="workForm('${r.id}')">Edit</button> <button class="d" onclick="delRow('team_work','${r.id}')">Del</button>`:''}</td>
+ <td><img class="qr" src="${qrImg('team',r,120)}" title="Click to enlarge / download / print" onclick="qrShow('team','${r.id}')"></td></tr>`).join('')||'<tr><td colspan="13">No entries yet.</td></tr>'}</tbody></table></div>`}
+function workForm(id){const r=D.work.find(x=>x.id===id)||{},lock=me.role==='team_member'&&me.facility,fv=r.facility||(lock?me.facility:''),tr=r.service==='User Trainings Done',dis=tr?' disabled':'';
  openModal(`<h3 style="margin-top:0">${id?'Edit':'Add'} work done</h3><form onsubmit="saveWork(event,${id?`'${id}'`:'null'})">
  <label>Facility<select name="facility" required${lock?' disabled':''}>${ph(FAC,fv)}</select></label>
  <label>Equipment<input name="equipment" required value="${esc(r.equipment)}"></label>
  <label>Location<input name="location" value="${esc(r.location)}"></label>
- <label>Serial number<input name="serial" value="${esc(r.serial)}"></label>
- <label>Model<input name="model" value="${esc(r.model)}"></label>
- <label>Type of service done<select name="service" required onchange="document.getElementById('trn').classList.toggle('hide',this.value!=='User Trainings Done')">${ph(TS,r.service)}</select></label>
- <div id="trn" class="${r.service==='User Trainings Done'?'':'hide'}"><label>Type of equipment trained on<input name="trained" value="${esc(r.equip_trained)}"></label>
+ <label class="tg">Serial number<input name="serial" value="${esc(r.serial)}"${dis}></label>
+ <label class="tg">Model<input name="model" value="${esc(r.model)}"${dis}></label>
+ <label>Type of service done<select name="service" required onchange="wToggle(this)">${ph(TS,r.service)}</select></label>
+ <div id="trn" class="${tr?'':'hide'}"><label>Type of equipment trained on<input name="trained" value="${esc(r.equip_trained)}"></label>
  <label>Number of users trained<input name="users" inputmode="numeric" value="${r.users_trained==null?'':r.users_trained}" oninput="this.value=this.value.replace(/\\D/g,'')"></label></div>
+ <label>Remarks<textarea name="remarks" rows="2">${esc(r.remarks)}</textarea></label>
  <div class="row"><button>Save</button><button type="button" class="s" onclick="closeModal()">Cancel</button></div></form>`)}
+function wToggle(sel){const tr=sel.value==='User Trainings Done';document.getElementById('trn').classList.toggle('hide',!tr);sel.form.querySelectorAll('.tg input').forEach(i=>{i.disabled=tr;if(tr)i.value=''})}
 async function saveWork(e,id){e.preventDefault();const f=e.target.elements,tr=f.service.value==='User Trainings Done',n=v=>v.trim()||null,old=D.work.find(x=>x.id===id);
  if(tr&&(!f.trained.value.trim()||!/^\d+$/.test(f.users.value)))return toast('Enter equipment trained on and a whole number of users');
  const team=old?old.team:(me.team||(isAdmin()?'Executive':null));if(!team)return toast('You have no team assigned');
- const row={facility:(me.role==='team_member'&&me.facility)||f.facility.value,equipment:n(f.equipment.value),location:n(f.location.value),serial:n(f.serial.value),model:n(f.model.value),service:f.service.value,
-  equip_trained:tr?n(f.trained.value):null,users_trained:tr?parseInt(f.users.value):null,team};
+ const row={facility:(me.role==='team_member'&&me.facility)||f.facility.value,equipment:n(f.equipment.value),location:n(f.location.value),serial:tr?null:n(f.serial.value),model:tr?null:n(f.model.value),service:f.service.value,
+  equip_trained:tr?n(f.trained.value):null,users_trained:tr?parseInt(f.users.value):null,remarks:n(f.remarks.value),team};
  if(!row.facility)return toast('Select a facility');
  const r=id?await sb.from('team_work').update(row).eq('id',id):await sb.from('team_work').insert(row);
  if(r.error)return toast(r.error.message);closeModal();toast('Saved');refresh()}
@@ -196,15 +284,15 @@ function facSum(f){const n=D.needs.filter(x=>x.facility===f),w=D.work.filter(x=>
  return{f,n,w,assessed:n.filter(x=>x.service!=='User Training').length,pmN:c(n,'service','Preventive Maintenance'),cmN:c(n,'service','Corrective Maintenance'),trN:c(n,'service','User Training'),
   pmD:c(w,'service','Preventive Maintenance Done'),cmD:c(w,'service','Corrective Maintenance Done'),trD:c(w,'service','User Trainings Done'),users:w.reduce((a,x)=>a+(x.users_trained||0),0)}}
 function facV(){const d=showDone();
- return (isAdmin()?`<div class="row"><button class="s" onclick="csv('facilities_summary',FAC.map(facSum).map(s=>({Facility:s.f,Equipment_assessed:s.assessed,PM_needed:s.pmN,CM_needed:s.cmN,Trainings_needed:s.trN,PM_done:s.pmD,CM_done:s.cmD,Trainings_done:s.trD})))">Export CSV</button></div>`:'')+
+ return (isAdmin()?`<div class="row">${expBtn('facilities')}</div>`:'')+
  FAC.map(facSum).map(s=>`<div class="card tw"><h3 style="margin-top:0">${esc(s.f)}</h3><table><thead><tr><th>Equipment assessed</th><th>Preventive maint. needed</th><th>Corrective maint. needed</th><th>User trainings needed</th>${d?'<th>Preventive maint. done</th><th>Corrective maint. done</th><th>User trainings done</th>':''}</tr></thead><tbody>
  <tr class="sum" onclick="this.nextElementSibling.classList.toggle('hide')" title="Click for details"><td>${s.assessed}</td><td>${s.pmN}</td><td>${s.cmN}</td><td>${s.trN}</td>${d?`<td>${s.pmD}</td><td>${s.cmD}</td><td>${s.trD}</td>`:''}</tr>
- <tr class="hide"><td colspan="7"><b>Needs assessment details</b>${s.n.length?`<table><tr><th>Equipment</th><th>Location</th><th>Serial</th><th>Service</th><th>Spare parts</th><th>Qty</th><th>Total (GHS)</th><th>Assessor</th></tr>${s.n.map(r=>`<tr><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.service)}</td><td>${esc(r.spare)}</td><td>${r.qty==null?'':r.qty}</td><td>${r.service==='User Training'?'':money(r.total_cost)}</td><td>${esc(r.assessor)}</td></tr>`).join('')}</table>`:'<p>None.</p>'}
- ${d?`<b>Work done</b> (users trained: ${s.users})${s.w.length?`<table><tr><th>Team</th><th>Equipment</th><th>Location</th><th>Serial</th><th>Service</th><th>Trained on</th><th>Users</th></tr>${s.w.map(r=>`<tr><td>${esc(r.team)}</td><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.service)}</td><td>${esc(r.equip_trained)}</td><td>${r.users_trained==null?'':r.users_trained}</td></tr>`).join('')}</table>`:'<p>None.</p>'}`:''}</td></tr></tbody></table></div>`).join('')}
+ <tr class="hide"><td colspan="7"><b>Needs assessment details</b>${s.n.length?`<table><tr><th>Equipment</th><th>Location</th><th>Serial</th><th>Service</th><th>Spare parts</th><th>Qty</th><th>Total (GHS)</th><th>Remarks</th><th>Assessor</th></tr>${s.n.map(r=>`<tr><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.service)}</td><td>${esc(r.spare)}</td><td>${r.qty==null?'':r.qty}</td><td>${r.service==='User Training'?'':money(r.total_cost)}</td><td>${esc(r.remarks)}</td><td>${esc(r.assessor)}</td></tr>`).join('')}</table>`:'<p>None.</p>'}
+ ${d?`<b>Work done</b> (users trained: ${s.users})${s.w.length?`<table><tr><th>Team</th><th>Equipment</th><th>Location</th><th>Serial</th><th>Service</th><th>Trained on</th><th>Users</th><th>Remarks</th></tr>${s.w.map(r=>`<tr><td>${esc(r.team)}</td><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.service)}</td><td>${esc(r.equip_trained)}</td><td>${r.users_trained==null?'':r.users_trained}</td><td>${esc(r.remarks)}</td></tr>`).join('')}</table>`:'<p>None.</p>'}`:''}</td></tr></tbody></table></div>`).join('')}
 
 /* ---------- USERS ---------- */
 function usersV(){const ex=me.role==='executive',dis=ex?'':' disabled';
- return `<div class="row">${isAdmin()?`<button class="s" onclick="csv('users',D.users.map(u=>({Name:u.full_name,Email:u.email,Phone:u.phone,Role:ROLES[u.role],Team:u.team,Facility:u.facility})))">Export CSV</button>`:''}<small>New users register themselves on the sign-in page and appear here as Viewers.${ex?'':' Only a BME Executive can assign roles.'}</small></div>
+ return `<div class="row">${expBtn('users')}<small>New users register themselves on the sign-in page and appear here as Viewers.${ex?'':' Only a BME Executive can assign roles.'}</small></div>
  <div class="card tw"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Team</th><th>Assigned facility</th><th>View team data</th><th></th></tr></thead><tbody>
  ${D.users.map(u=>`<tr><td>${esc(u.full_name)}</td><td>${esc(u.email)}</td><td>${esc(u.phone)}</td>
  <td><select id="r_${u.id}"${dis}>${opts(Object.keys(ROLES).map(k=>ROLES[k]),ROLES[u.role])}</select></td>
