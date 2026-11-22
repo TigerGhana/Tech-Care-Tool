@@ -85,7 +85,9 @@ async function init(){
 async function start(){
  const u=(await sb.auth.getUser()).data.user;let p=null;
  for(let i=0;i<4&&!p;i++){p=(await sb.from('profiles').select('*').eq('id',u.id).maybeSingle()).data;if(!p)await new Promise(r=>setTimeout(r,600))}
- if(!p){await sb.auth.signOut();return authView('Profile not found. Run schema.sql and try again.')}
+ if(!p){const m=u.user_metadata||{},ins=await sb.from('profiles').insert({id:u.id,full_name:m.full_name||null,email:m.email||null,phone:m.phone||(u.email||'').split('@')[0]});
+  if(!ins.error)p=(await sb.from('profiles').select('*').eq('id',u.id).maybeSingle()).data;
+  if(!p){await sb.auth.signOut();return authView('Could not load profile: '+(ins.error?ins.error.message:'run fix.sql in Supabase'))}}
  me=p;tab='overview';await loadAll();shell()}
 async function loadAll(){
  const r=me.role,q=[],E=(x,k)=>{if(x.error)toast(x.error.message);D[k]=x.data||[]};
