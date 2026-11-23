@@ -42,6 +42,8 @@ const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const FAC=['Essikado Hospital','Apinto Hospital','Juaboso Hospital','Sefwi Wiawso Hospital'];
 const ASR=['Kingsley Adjepong','Kwabena Okyere Boateng','Linda Akorfa Abotsigah','Oliver Agboka'];
 const NS=['Corrective Maintenance','Preventive Maintenance','User Training'];
+const ST=['Functional and in use','Functional but not in use','Functional with broken accessories','Functional servicing needed','Functional but needs repairs','Non-functional major repairs needed','Non-functional minor repairs needed','Non-functional with functional accessories','Obsolete','Others (comment in remarks)'];
+const isMx=s=>s==='Corrective Maintenance'||s==='Preventive Maintenance';
 const TS=['Preventive Maintenance Done','Corrective Maintenance Done','User Trainings Done'];
 const ROLES={executive:'BME Executive',secretariat:'Secretariat Team',needs_assessment:'Needs Assessment Team',team_member:'Team Member',viewer:'Viewer'};
 const ALL=['overview','needs','facilities','users','team','settings'];
@@ -130,7 +132,7 @@ function drawCharts(){const s=ovStats(),tx=getComputedStyle(document.documentEle
  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},title:{display:true,text:l,color:tx}},scales:{x:{ticks:{color:tx}},y:{beginAtZero:true,ticks:{precision:0,color:tx}}}}}))})}
 
 /* ---------- EXPORT / IMPORT / QR HELPERS ---------- */
-const NC=[['Facility','facility'],['Equipment','equipment'],['Location','location'],['Serial No.','serial'],['Model','model'],['Service Required','service'],['Spare Parts / Accessories','spare'],['Quantity','qty'],['Est. Cost (GHS)','est_cost'],['Total Cost (GHS)','total_cost'],['Remarks','remarks'],['Assessor','assessor']];
+const NC=[['Facility','facility'],['Equipment','equipment'],['Location','location'],['Manufacturer','manufacturer'],['Serial No.','serial'],['Model','model'],['Service Required','service'],['Functional Status','func_status'],['Spare Parts / Accessories','spare'],['Quantity','qty'],['Est. Cost (GHS)','est_cost'],['Total Cost (GHS)','total_cost'],['Remarks','remarks'],['Assessor','assessor']];
 const WC=[['Facility','facility'],['Team','team'],['Equipment','equipment'],['Location','location'],['Serial No.','serial'],['Model','model'],['Service Done','service'],['Equipment Trained On','equip_trained'],['Users Trained','users_trained'],['Remarks','remarks']];
 const TC=WC.filter(c=>c[1]!=='team');
 const bdg=s=>s?`<span class="pill ${/Corrective/.test(s)?'cm':/Preventive/.test(s)?'pm':'tr'}">${esc(s)}</span>`:'';
@@ -158,13 +160,14 @@ async function tmpl(kind){const N=kind==='needs',C=N?NC:TC,wb=new ExcelJS.Workbo
  C.forEach((c,i)=>{ws.getColumn(i+1).width=Math.max(16,c[0].length+4)});ws.views=[{state:'frozen',ySplit:1}];
  for(let r=2;r<=501;r++){const dv=(l,v)=>{ws.getCell(L(l)+r).dataValidation=Object.assign({allowBlank:true,showErrorMessage:true,errorStyle:'stop',errorTitle:'Invalid entry'},v)};
   dv('Facility',{type:'list',formulae:['"'+FAC.join(',')+'"'],error:'Pick a facility from the list'});
-  if(N){dv('Service Required',{type:'list',formulae:['"'+NS.join(',')+'"'],error:'Pick a service from the list'});dv('Assessor',{type:'list',formulae:['"'+ASR.join(',')+'"'],error:'Pick an assessor from the list'});
+  if(N){dv('Service Required',{type:'list',formulae:['"'+NS.join(',')+'"'],error:'Pick a service from the list'});dv('Functional Status',{type:'list',formulae:['Lists!$A$1:$A$'+ST.length],error:'Pick a functional status from the list (required for PM / CM rows)'});dv('Assessor',{type:'list',formulae:['"'+ASR.join(',')+'"'],error:'Pick an assessor from the list'});
    dv('Quantity',{type:'whole',operator:'greaterThanOrEqual',formulae:[0],error:'Whole numbers only'});dv('Est. Cost (GHS)',{type:'decimal',operator:'greaterThanOrEqual',formulae:[0],error:'Numbers only (2 decimals)'});
    ws.getCell(L('Est. Cost (GHS)')+r).numFmt='0.00';const q=L('Quantity')+r,e=L('Est. Cost (GHS)')+r,t=ws.getCell(L('Total Cost (GHS)')+r);t.value={formula:`IF(OR(${q}="",${e}=""),"",ROUND(${q}*${e},2))`};t.numFmt='#,##0.00'}
   else{dv('Service Done',{type:'list',formulae:['"'+TS.join(',')+'"'],error:'Pick a service from the list'});dv('Users Trained',{type:'whole',operator:'greaterThanOrEqual',formulae:[0],error:'Whole numbers only'})}}
+ if(N){const ls=wb.addWorksheet('Lists');ST.forEach(s=>ls.addRow([s]));ls.state='hidden'}
  const ins=wb.addWorksheet('Instructions');['TECH-CARE OUTREACH TOOL - bulk import template','Fill the first sheet from row 2. Do not rename or reorder the header row.','Choose Facility'+(N?', Service Required and Assessor':' and Service Done')+' from the drop-down lists.',
   N?'Quantity = whole numbers only. Est. Cost = numbers with up to 2 decimals. Total Cost is calculated automatically (leave it alone).':'For User Trainings Done fill Equipment Trained On and Users Trained (whole number).',
-  N?'User Training rows: leave Serial No., Model, Spare Parts, Quantity and Est. Cost blank.':'For User Trainings Done leave Serial No. and Model blank.','Then use Import Excel in the app. If any row has an error, nothing is imported and the faulty rows are listed.'].forEach(t=>ins.addRow([t]));ins.getColumn(1).width=110;
+  N?'Functional Status is required for Preventive/Corrective Maintenance rows. User Training rows: leave Manufacturer, Serial No., Model, Functional Status, Spare Parts, Quantity and Est. Cost blank.':'For User Trainings Done leave Serial No. and Model blank.','Then use Import Excel in the app. If any row has an error, nothing is imported and the faulty rows are listed.'].forEach(t=>ins.addRow([t]));ins.getColumn(1).width=110;
  dl(new Blob([await wb.xlsx.writeBuffer()],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'techcare_'+(N?'needs_assessment':'team_work')+'_template.xlsx')}
 function impPick(kind){const i=document.createElement('input');i.type='file';i.accept='.xlsx';i.onchange=()=>impRun(kind,i.files[0]);i.click()}
 function cvl(c){let v=c.value;if(v&&typeof v==='object'){if('result' in v)v=v.result;else if(v.richText)v=v.richText.map(t=>t.text).join('');else if(v.text)v=v.text}return v==null?'':String(v).trim()}
@@ -177,11 +180,11 @@ async function impRun(kind,file){if(!file)return;const N=kind==='needs',C=N?NC:T
   ws.eachRow((row,rn)=>{if(rn===1)return;const g=l=>hdr[l]?cvl(row.getCell(hdr[l])):'';if(C.every(c=>c[1]==='total_cost'||!g(c[0])))return;
    const e=[],fac=pick(g('Facility'),FAC);if(!fac)e.push('Facility');
    if(!N&&me.role==='team_member'&&me.facility&&fac&&fac!==me.facility)e.push('Facility must be '+me.facility);
-   if(N){const sv=pick(g('Service Required'),NS),as=pick(g('Assessor'),ASR),tr=sv==='User Training';let qty=null,cost=null;
+   if(N){const sv=pick(g('Service Required'),NS),as=pick(g('Assessor'),ASR),fs=pick(g('Functional Status'),ST),tr=sv==='User Training';let qty=null,cost=null;
     if(!sv)e.push('Service Required');if(!as)e.push('Assessor');
-    if(!tr){if(!g('Equipment'))e.push('Equipment');if(!/^\d+$/.test(g('Quantity')))e.push('Quantity (whole number)');else qty=+g('Quantity');
+    if(!tr){if(!g('Equipment'))e.push('Equipment');if(!fs)e.push('Functional Status');if(!/^\d+$/.test(g('Quantity')))e.push('Quantity (whole number)');else qty=+g('Quantity');
      const c=g('Est. Cost (GHS)');if(!/^\d+(\.\d{1,2})?$/.test(c))e.push('Est. Cost (max 2 decimals)');else cost=+(+c).toFixed(2)}
-    if(!e.length)rows.push({facility:fac,equipment:n(g('Equipment')),location:n(g('Location')),serial:tr?null:n(g('Serial No.')),model:tr?null:n(g('Model')),service:sv,spare:tr?null:n(g('Spare Parts / Accessories')),qty,est_cost:cost,remarks:n(g('Remarks')),assessor:as})}
+    if(!e.length)rows.push({facility:fac,equipment:n(g('Equipment')),location:n(g('Location')),manufacturer:tr?null:n(g('Manufacturer')),serial:tr?null:n(g('Serial No.')),model:tr?null:n(g('Model')),service:sv,func_status:tr?null:fs,spare:tr?null:n(g('Spare Parts / Accessories')),qty,est_cost:cost,remarks:n(g('Remarks')),assessor:as})}
    else{const sv=pick(g('Service Done'),TS),tr=sv==='User Trainings Done';let tn=null,un=null;if(!sv)e.push('Service Done');if(!g('Equipment'))e.push('Equipment');
     if(tr){tn=g('Equipment Trained On');un=g('Users Trained');if(!tn)e.push('Equipment Trained On');if(!/^\d+$/.test(un))e.push('Users Trained (whole number)');else un=+un}
     if(!e.length)rows.push({facility:fac,equipment:n(g('Equipment')),location:n(g('Location')),serial:tr?null:n(g('Serial No.')),model:tr?null:n(g('Model')),service:sv,equip_trained:tr?tn:null,users_trained:tr?un:null,remarks:n(g('Remarks')),team})}
@@ -191,7 +194,7 @@ async function impRun(kind,file){if(!file)return;const N=kind==='needs',C=N?NC:T
   const t=N?'needs':'team_work';for(let i=0;i<rows.length;i+=200){const r=await sb.from(t).insert(rows.slice(i,i+200));if(r.error)return toast(r.error.message)}
   toast(rows.length+' row(s) imported');refresh()}catch(x){toast('Could not read file: '+x.message)}}
 /* QR codes */
-const qtxt=(k,r)=>{const L=k==='needs'?[['Facility',r.facility],['Equipment',r.equipment],['Location',r.location],['Serial No.',r.serial],['Model',r.model],['Service',r.service],['Spare parts',r.spare],['Qty',r.qty],['Est. cost (GHS)',r.est_cost==null?null:money(r.est_cost)],['Total (GHS)',r.service==='User Training'?null:money(r.total_cost)],['Remarks',r.remarks],['Assessor',r.assessor]]
+const qtxt=(k,r)=>{const L=k==='needs'?[['Facility',r.facility],['Equipment',r.equipment],['Location',r.location],['Manufacturer',r.manufacturer],['Serial No.',r.serial],['Model',r.model],['Service',r.service],['Functional status',r.func_status],['Spare parts',r.spare],['Qty',r.qty],['Est. cost (GHS)',r.est_cost==null?null:money(r.est_cost)],['Total (GHS)',r.service==='User Training'?null:money(r.total_cost)],['Remarks',r.remarks],['Assessor',r.assessor]]
  :[['Facility',r.facility],['Team',r.team],['Equipment',r.equipment],['Location',r.location],['Serial No.',r.serial],['Model',r.model],['Service',r.service],['Trained on',r.equip_trained],['Users trained',r.users_trained],['Remarks',r.remarks]];
  return ('TECH-CARE OUTREACH\n'+L.filter(x=>x[1]!=null&&x[1]!=='').map(x=>x[0]+': '+x[1]).join('\n')).slice(0,1200)};
 function qrCv(text,px){const q=qrcode(0,'M');q.addData(text);q.make();const n=q.getModuleCount(),m=4,s=Math.max(1,Math.floor(px/(n+2*m))),c=document.createElement('canvas');c.width=c.height=s*(n+2*m);const x=c.getContext('2d');
@@ -208,20 +211,22 @@ function qrPrintAll(k){const ids=(k==='needs'?D.needs.filter(r=>!nfac||r.facilit
 const canEditN=r=>['executive','secretariat'].includes(me.role)||r.created_by===me.id;
 function needsV(){const rows=D.needs.filter(r=>!nfac||r.facility===nfac);
  return `<div class="row"><button onclick="needForm()">+ Add equipment</button><select onchange="nfac=this.value;render()"><option value="">All facilities</option>${opts(FAC,nfac)}</select>${expBtn('needs')}<button class="s" onclick="impPick('needs')">⬆ Import Excel</button><button class="s" onclick="tmpl('needs')">📄 Template</button><button class="s" onclick="qrPrintAll('needs')">🖨 Print QR labels</button></div>
- <div class="card tw"><table><thead><tr><th>#</th><th>Facility</th><th>Equipment</th><th>Location</th><th>Serial No.</th><th>Model</th><th>Service required</th><th>Spare parts / accessories</th><th>Pic</th><th>Qty</th><th>Est. cost (GHS)</th><th>Total (GHS)</th><th>Remarks</th><th>Assessor</th><th></th><th>QR code</th></tr></thead><tbody>
- ${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.facility)}</td><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.serial)}</td><td>${esc(r.model)}</td><td>${bdg(r.service)}</td><td>${esc(r.spare)}</td>
+ <div class="card tw"><table><thead><tr><th>#</th><th>Facility</th><th>Equipment</th><th>Location</th><th>Manufacturer</th><th>Serial No.</th><th>Model</th><th>Service required</th><th>Functional status</th><th>Spare parts / accessories</th><th>Pic</th><th>Qty</th><th>Est. cost (GHS)</th><th>Total (GHS)</th><th>Remarks</th><th>Assessor</th><th></th><th>QR code</th></tr></thead><tbody>
+ ${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.facility)}</td><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.manufacturer)}</td><td>${esc(r.serial)}</td><td>${esc(r.model)}</td><td>${bdg(r.service)}</td><td>${esc(r.func_status)}</td><td>${esc(r.spare)}</td>
  <td>${r.picture_url?`<a href="${esc(r.picture_url)}" target="_blank"><img class="th" src="${esc(r.picture_url)}"></a>`:''}</td><td>${r.qty==null?'':r.qty}</td><td>${r.est_cost==null?'':money(r.est_cost)}</td><td>${r.service==='User Training'?'':money(r.total_cost)}</td><td>${esc(r.remarks)}</td><td>${esc(r.assessor)}</td>
  <td style="white-space:nowrap">${canEditN(r)?`<button class="s" onclick="needForm('${r.id}')">Edit</button> <button class="d" onclick="delRow('needs','${r.id}')">Del</button>`:''}</td>
- <td><img class="qr" src="${qrImg('needs',r,120)}" title="Click to enlarge / download / print" onclick="qrShow('needs','${r.id}')"></td></tr>`).join('')||'<tr><td colspan="16">No entries yet.</td></tr>'}
- </tbody><tfoot><tr><th colspan="11" style="text-align:right">Grand total</th><th>${money(rows.reduce((a,r)=>a+Number(r.total_cost||0),0))}</th><th colspan="4"></th></tr></tfoot></table></div>`}
+ <td><img class="qr" src="${qrImg('needs',r,120)}" title="Click to enlarge / download / print" onclick="qrShow('needs','${r.id}')"></td></tr>`).join('')||'<tr><td colspan="18">No entries yet.</td></tr>'}
+ </tbody><tfoot><tr><th colspan="13" style="text-align:right">Grand total</th><th>${money(rows.reduce((a,r)=>a+Number(r.total_cost||0),0))}</th><th colspan="4"></th></tr></tfoot></table></div>`}
 function needForm(id){const r=D.needs.find(x=>x.id===id)||{},tr=r.service==='User Training',dis=tr?' disabled':'';
  openModal(`<h3 style="margin-top:0">${id?'Edit':'Add'} needs assessment entry</h3><form onsubmit="saveNeed(event,${id?`'${id}'`:'null'})">
  <label>Name of facility<select name="facility" required>${ph(FAC,r.facility)}</select></label>
  <label>Name of equipment<input name="equipment" value="${esc(r.equipment)}"></label>
  <label>Location in facility<input name="location" value="${esc(r.location)}"></label>
+ <label class="tg">Manufacturer<input name="manufacturer" value="${esc(r.manufacturer)}"${dis}></label>
  <label class="tg">Serial number<input name="serial" value="${esc(r.serial)}"${dis}></label>
  <label class="tg">Model<input name="model" value="${esc(r.model)}"${dis}></label>
  <label>Type of service required<select name="service" required onchange="trainToggle(this.form)">${ph(NS,r.service)}</select></label>
+ <div id="fs" class="${isMx(r.service)?'':'hide'}"><label>Functional status<select name="func_status"${isMx(r.service)?' required':''}>${ph(ST,r.func_status)}</select></label></div>
  <div id="tf" class="tg"><label>Details of spare parts / accessories required<textarea name="spare" rows="2"${dis}>${esc(r.spare)}</textarea></label>
  <label>Picture (optional)<input name="pic" type="file" accept="image/*"${dis}></label>
  <label>Quantity needed (whole number)<input name="qty" inputmode="numeric" value="${r.qty==null?'':r.qty}" oninput="this.value=this.value.replace(/\\D/g,'');calc(this.form)"${dis}></label>
@@ -231,15 +236,16 @@ function needForm(id){const r=D.needs.find(x=>x.id===id)||{},tr=r.service==='Use
  <label>Name of assessor<select name="assessor" required>${ph(ASR,r.assessor)}</select></label>
  <div class="row"><button>Save</button><button type="button" class="s" onclick="closeModal()">Cancel</button></div></form>`)}
 function calc(f){const q=parseInt(f.qty.value)||0,c=parseFloat(f.cost.value)||0;f.total.value=money(q*c)}
-function trainToggle(f){const tr=f.service.value==='User Training';document.querySelectorAll('.tg input,.tg textarea').forEach(i=>{i.disabled=tr;if(tr)i.value=''})}
+function trainToggle(f){const sv=f.service.value,tr=sv==='User Training',m=isMx(sv);document.getElementById('fs').classList.toggle('hide',!m);f.func_status.required=m;if(!m)f.func_status.value='';document.querySelectorAll('.tg input,.tg textarea').forEach(i=>{i.disabled=tr;if(tr)i.value=''})}
 async function saveNeed(e,id){e.preventDefault();const f=e.target.elements,tr=f.service.value==='User Training',old=D.needs.find(x=>x.id===id)||{};
  if(!tr){if(!f.equipment.value.trim())return toast('Equipment name is required');
+  if(!f.func_status.value)return toast('Select the functional status');
   if(!/^\d+$/.test(f.qty.value))return toast('Quantity must be a whole number');
   if(!/^\d+(\.\d{1,2})?$/.test(f.cost.value))return toast('Estimated cost must be a number with two decimal places')}
  let pic=tr?null:(old.picture_url||null);const file=!tr&&f.pic.files[0];
  if(file){const p=`${me.id}/${Date.now()}_${file.name.replace(/[^\w.-]/g,'_')}`,u=await sb.storage.from('needs-pics').upload(p,file);
   if(u.error)return toast(u.error.message);pic=sb.storage.from('needs-pics').getPublicUrl(p).data.publicUrl}
- const n=v=>v.trim()||null,row={facility:f.facility.value,equipment:n(f.equipment.value),location:n(f.location.value),serial:tr?null:n(f.serial.value),model:tr?null:n(f.model.value),service:f.service.value,
+ const n=v=>v.trim()||null,row={facility:f.facility.value,equipment:n(f.equipment.value),location:n(f.location.value),manufacturer:tr?null:n(f.manufacturer.value),serial:tr?null:n(f.serial.value),model:tr?null:n(f.model.value),service:f.service.value,func_status:tr?null:f.func_status.value,
   spare:tr?null:n(f.spare.value),picture_url:pic,qty:tr?null:parseInt(f.qty.value),est_cost:tr?null:Number(parseFloat(f.cost.value).toFixed(2)),remarks:n(f.remarks.value),assessor:f.assessor.value};
  const r=id?await sb.from('needs').update(row).eq('id',id):await sb.from('needs').insert(row);
  if(r.error)return toast(r.error.message);closeModal();toast('Saved');refresh()}
