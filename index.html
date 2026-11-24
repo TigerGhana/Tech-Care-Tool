@@ -68,6 +68,9 @@ function csv(name,rows){if(!rows.length)return toast('Nothing to export');const 
  const t=[k.join(','),...rows.map(r=>k.map(c=>'"'+String(r[c]==null?'':r[c]).replace(/"/g,'""')+'"').join(','))].join('\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download=name+'_'+new Date().toISOString().slice(0,10)+'.csv';a.click()}
 
+let busy=false;
+async function guard(e,fn){e.preventDefault();if(busy)return;busy=true;const b=e.target.querySelector('button:not([type=button])'),t=b&&b.textContent;if(b){b.disabled=true;b.textContent='Saving…'}
+ try{await fn(e.target.elements)}finally{busy=false;if(b){b.disabled=false;b.textContent=t}}}
 /* ---------- AUTH ---------- */
 function authView(m,signup){
  $('#root').innerHTML=`<div class="auth"><div class="card"><h2 style="margin-top:0;color:var(--pr)">TECH-CARE OUTREACH TOOL</h2>
@@ -172,7 +175,8 @@ async function tmpl(kind){const N=kind==='needs',C=N?NC:TC,wb=new ExcelJS.Workbo
 function impPick(kind){const i=document.createElement('input');i.type='file';i.accept='.xlsx';i.onchange=()=>impRun(kind,i.files[0]);i.click()}
 function cvl(c){let v=c.value;if(v&&typeof v==='object'){if('result' in v)v=v.result;else if(v.richText)v=v.richText.map(t=>t.text).join('');else if(v.text)v=v.text}return v==null?'':String(v).trim()}
 const pick=(v,a)=>a.find(x=>x.toLowerCase()===String(v).toLowerCase());
-async function impRun(kind,file){if(!file)return;const N=kind==='needs',C=N?NC:TC;
+async function impRun(kind,file){if(busy||!file)return;busy=true;try{await impGo(kind,file)}finally{busy=false}}
+async function impGo(kind,file){const N=kind==='needs',C=N?NC:TC;
  try{const wb=new ExcelJS.Workbook();await wb.xlsx.load(await file.arrayBuffer());const ws=wb.worksheets[0],hdr={};ws.getRow(1).eachCell((c,i)=>{hdr[cvl(c)]=i});
   const miss=C.filter(c=>c[1]!=='total_cost'&&!hdr[c[0]]).map(c=>c[0]);if(miss.length)return toast('Missing columns: '+miss.join(', ')+' - please use the template');
   const team=me.team||(isAdmin()?'Executive':null);if(!N&&!team)return toast('You have no team assigned');
@@ -192,7 +196,7 @@ async function impRun(kind,file){if(!file)return;const N=kind==='needs',C=N?NC:T
   if(errs.length)return openModal(`<h3 style="margin-top:0">Import stopped - fix these rows</h3><p>${errs.length} row(s) have problems. Nothing was imported.</p><ul>${errs.slice(0,25).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>${errs.length>25?'<p>…and more.</p>':''}<button onclick="closeModal()">Close</button>`);
   if(!rows.length)return toast('No data rows found');if(!confirm('Import '+rows.length+' row(s)?'))return;
   const t=N?'needs':'team_work';for(let i=0;i<rows.length;i+=200){const r=await sb.from(t).insert(rows.slice(i,i+200));if(r.error)return toast(r.error.message)}
-  toast(rows.length+' row(s) imported');refresh()}catch(x){toast('Could not read file: '+x.message)}}
+  toast('Data is saved - '+rows.length+' row(s) imported');refresh()}catch(x){toast('Could not read file: '+x.message)}}
 /* QR codes */
 const qtxt=(k,r)=>{const L=k==='needs'?[['Facility',r.facility],['Equipment',r.equipment],['Location',r.location],['Manufacturer',r.manufacturer],['Serial No.',r.serial],['Model',r.model],['Service',r.service],['Functional status',r.func_status],['Spare parts',r.spare],['Qty',r.qty],['Est. cost (GHS)',r.est_cost==null?null:money(r.est_cost)],['Total (GHS)',r.service==='User Training'?null:money(r.total_cost)],['Remarks',r.remarks],['Assessor',r.assessor]]
  :[['Facility',r.facility],['Team',r.team],['Equipment',r.equipment],['Location',r.location],['Serial No.',r.serial],['Model',r.model],['Service',r.service],['Trained on',r.equip_trained],['Users trained',r.users_trained],['Remarks',r.remarks]];
@@ -208,9 +212,10 @@ function qrPrint(k,ids){const L=k==='needs'?D.needs:D.work,h=ids.map(id=>{const 
 function qrPrintAll(k){const ids=(k==='needs'?D.needs.filter(r=>!nfac||r.facility===nfac):D.work).map(r=>r.id);if(!ids.length)return toast('No entries to print');qrPrint(k,ids)}
 
 /* ---------- NEEDS ASSESSMENT ---------- */
-const canEditN=r=>['executive','secretariat'].includes(me.role)||r.created_by===me.id;
+const canAddN=()=>me.role==='needs_assessment';
+const canEditN=r=>canAddN()&&r.created_by===me.id;
 function needsV(){const rows=D.needs.filter(r=>!nfac||r.facility===nfac);
- return `<div class="row"><button onclick="needForm()">+ Add equipment</button><select onchange="nfac=this.value;render()"><option value="">All facilities</option>${opts(FAC,nfac)}</select>${expBtn('needs')}<button class="s" onclick="impPick('needs')">⬆ Import Excel</button><button class="s" onclick="tmpl('needs')">📄 Template</button><button class="s" onclick="qrPrintAll('needs')">🖨 Print QR labels</button></div>
+ return `<div class="row">${canAddN()?'<button onclick="needForm()">+ Add equipment</button>':''}<select onchange="nfac=this.value;render()"><option value="">All facilities</option>${opts(FAC,nfac)}</select>${expBtn('needs')}${canAddN()?`<button class="s" onclick="impPick('needs')">⬆ Import Excel</button><button class="s" onclick="tmpl('needs')">📄 Template</button>`:''}<button class="s" onclick="qrPrintAll('needs')">🖨 Print QR labels</button></div>
  <div class="card tw"><table><thead><tr><th>#</th><th>Facility</th><th>Equipment</th><th>Location</th><th>Manufacturer</th><th>Serial No.</th><th>Model</th><th>Service required</th><th>Functional status</th><th>Spare parts / accessories</th><th>Pic</th><th>Qty</th><th>Est. cost (GHS)</th><th>Total (GHS)</th><th>Remarks</th><th>Assessor</th><th></th><th>QR code</th></tr></thead><tbody>
  ${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.facility)}</td><td>${esc(r.equipment)}</td><td>${esc(r.location)}</td><td>${esc(r.manufacturer)}</td><td>${esc(r.serial)}</td><td>${esc(r.model)}</td><td>${bdg(r.service)}</td><td>${esc(r.func_status)}</td><td>${esc(r.spare)}</td>
  <td>${r.picture_url?`<a href="${esc(r.picture_url)}" target="_blank"><img class="th" src="${esc(r.picture_url)}"></a>`:''}</td><td>${r.qty==null?'':r.qty}</td><td>${r.est_cost==null?'':money(r.est_cost)}</td><td>${r.service==='User Training'?'':money(r.total_cost)}</td><td>${esc(r.remarks)}</td><td>${esc(r.assessor)}</td>
@@ -228,7 +233,7 @@ function needForm(id){const r=D.needs.find(x=>x.id===id)||{},tr=r.service==='Use
  <label>Type of service required<select name="service" required onchange="trainToggle(this.form)">${ph(NS,r.service)}</select></label>
  <div id="fs" class="${isMx(r.service)?'':'hide'}"><label>Functional status<select name="func_status"${isMx(r.service)?' required':''}>${ph(ST,r.func_status)}</select></label></div>
  <div id="tf" class="tg"><label>Details of spare parts / accessories required<textarea name="spare" rows="2"${dis}>${esc(r.spare)}</textarea></label>
- <label>Picture (optional)<input name="pic" type="file" accept="image/*"${dis}></label>
+ <label>Picture (optional)<input name="pic" type="file" accept="image/*"${dis}></label>${r.picture_url?`<div class="row"><img class="th" src="${esc(r.picture_url)}"><small>Current picture is kept unless you choose a new one</small><label style="margin:0"><input type="checkbox" name="rmpic" style="width:auto"${dis}> Remove picture</label></div>`:''}
  <label>Quantity needed (whole number)<input name="qty" inputmode="numeric" value="${r.qty==null?'':r.qty}" oninput="this.value=this.value.replace(/\\D/g,'');calc(this.form)"${dis}></label>
  <label>Estimated cost per unit (GHS, 2 decimals)<input name="cost" inputmode="decimal" value="${r.est_cost==null?'':Number(r.est_cost).toFixed(2)}" oninput="this.value=this.value.replace(/[^\\d.]/g,'').replace(/(\\..*)\\./g,'$1').replace(/(\\.\\d{2}).*/,'$1');calc(this.form)" onblur="if(this.value)this.value=Number(this.value).toFixed(2)"${dis}></label>
  <label>Total cost (GHS) – automatic<input name="total" readonly value="${tr?'':money(r.total_cost)}"></label></div>
@@ -237,19 +242,21 @@ function needForm(id){const r=D.needs.find(x=>x.id===id)||{},tr=r.service==='Use
  <div class="row"><button>Save</button><button type="button" class="s" onclick="closeModal()">Cancel</button></div></form>`)}
 function calc(f){const q=parseInt(f.qty.value)||0,c=parseFloat(f.cost.value)||0;f.total.value=money(q*c)}
 function trainToggle(f){const sv=f.service.value,tr=sv==='User Training',m=isMx(sv);document.getElementById('fs').classList.toggle('hide',!m);f.func_status.required=m;if(!m)f.func_status.value='';document.querySelectorAll('.tg input,.tg textarea').forEach(i=>{i.disabled=tr;if(tr)i.value=''})}
-async function saveNeed(e,id){e.preventDefault();const f=e.target.elements,tr=f.service.value==='User Training',old=D.needs.find(x=>x.id===id)||{};
+const saveNeed=(e,id)=>guard(e,f=>saveNeedGo(f,id));
+async function saveNeedGo(f,id){const tr=f.service.value==='User Training';
  if(!tr){if(!f.equipment.value.trim())return toast('Equipment name is required');
   if(!f.func_status.value)return toast('Select the functional status');
   if(!/^\d+$/.test(f.qty.value))return toast('Quantity must be a whole number');
   if(!/^\d+(\.\d{1,2})?$/.test(f.cost.value))return toast('Estimated cost must be a number with two decimal places')}
- let pic=tr?null:(old.picture_url||null);const file=!tr&&f.pic.files[0];
+ const file=!tr&&f.pic.files[0];let pic;
  if(file){const p=`${me.id}/${Date.now()}_${file.name.replace(/[^\w.-]/g,'_')}`,u=await sb.storage.from('needs-pics').upload(p,file);
   if(u.error)return toast(u.error.message);pic=sb.storage.from('needs-pics').getPublicUrl(p).data.publicUrl}
  const n=v=>v.trim()||null,row={facility:f.facility.value,equipment:n(f.equipment.value),location:n(f.location.value),manufacturer:tr?null:n(f.manufacturer.value),serial:tr?null:n(f.serial.value),model:tr?null:n(f.model.value),service:f.service.value,func_status:tr?null:f.func_status.value,
-  spare:tr?null:n(f.spare.value),picture_url:pic,qty:tr?null:parseInt(f.qty.value),est_cost:tr?null:Number(parseFloat(f.cost.value).toFixed(2)),remarks:n(f.remarks.value),assessor:f.assessor.value};
+  spare:tr?null:n(f.spare.value),qty:tr?null:parseInt(f.qty.value),est_cost:tr?null:Number(parseFloat(f.cost.value).toFixed(2)),remarks:n(f.remarks.value),assessor:f.assessor.value};
+ if(tr||(f.rmpic&&f.rmpic.checked))row.picture_url=null;else if(pic)row.picture_url=pic;
  const r=id?await sb.from('needs').update(row).eq('id',id):await sb.from('needs').insert(row);
- if(r.error)return toast(r.error.message);closeModal();toast('Saved');refresh()}
-async function delRow(t,id){if(!confirm('Delete this entry?'))return;const r=await sb.from(t).delete().eq('id',id);if(r.error)return toast(r.error.message);refresh()}
+ if(r.error)return toast(r.error.message);closeModal();toast('Data is saved');refresh()}
+async function delRow(t,id){if(busy||!confirm('Delete this entry?'))return;busy=true;try{const r=await sb.from(t).delete().eq('id',id);if(r.error)return toast(r.error.message);toast('Entry deleted');refresh()}finally{busy=false}}
 
 /* ---------- TEAM MEMBERS ---------- */
 const canEditW=r=>isAdmin()||r.created_by===me.id;
@@ -275,14 +282,15 @@ function workForm(id){const r=D.work.find(x=>x.id===id)||{},lock=me.role==='team
  <label>Remarks<textarea name="remarks" rows="2">${esc(r.remarks)}</textarea></label>
  <div class="row"><button>Save</button><button type="button" class="s" onclick="closeModal()">Cancel</button></div></form>`)}
 function wToggle(sel){const tr=sel.value==='User Trainings Done';document.getElementById('trn').classList.toggle('hide',!tr);sel.form.querySelectorAll('.tg input').forEach(i=>{i.disabled=tr;if(tr)i.value=''})}
-async function saveWork(e,id){e.preventDefault();const f=e.target.elements,tr=f.service.value==='User Trainings Done',n=v=>v.trim()||null,old=D.work.find(x=>x.id===id);
+const saveWork=(e,id)=>guard(e,f=>saveWorkGo(f,id));
+async function saveWorkGo(f,id){const tr=f.service.value==='User Trainings Done',n=v=>v.trim()||null,old=D.work.find(x=>x.id===id);
  if(tr&&(!f.trained.value.trim()||!/^\d+$/.test(f.users.value)))return toast('Enter equipment trained on and a whole number of users');
  const team=old?old.team:(me.team||(isAdmin()?'Executive':null));if(!team)return toast('You have no team assigned');
  const row={facility:(me.role==='team_member'&&me.facility)||f.facility.value,equipment:n(f.equipment.value),location:n(f.location.value),serial:tr?null:n(f.serial.value),model:tr?null:n(f.model.value),service:f.service.value,
   equip_trained:tr?n(f.trained.value):null,users_trained:tr?parseInt(f.users.value):null,remarks:n(f.remarks.value),team};
  if(!row.facility)return toast('Select a facility');
  const r=id?await sb.from('team_work').update(row).eq('id',id):await sb.from('team_work').insert(row);
- if(r.error)return toast(r.error.message);closeModal();toast('Saved');refresh()}
+ if(r.error)return toast(r.error.message);closeModal();toast('Data is saved');refresh()}
 
 /* ---------- FACILITIES ---------- */
 const showDone=()=>me.role!=='needs_assessment'||me.can_view_teams;
