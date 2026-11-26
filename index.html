@@ -148,15 +148,31 @@ function rowsFor(id){
  if(id==='users')return D.users.map(u=>({Name:u.full_name,Email:u.email,Phone:u.phone,Role:ROLES[u.role],Team:u.team||'',Facility:u.facility||''}));
  return FAC.map(facSum).map(s=>({Facility:s.f,'Equipment assessed':s.assessed,'PM needed':s.pmN,'CM needed':s.cmN,'Trainings needed':s.trN,'PM done':s.pmD,'CM done':s.cmD,'Trainings done':s.trD}))}
 const expBtn=id=>isAdmin()?`<select class="btn" onchange="doExp(this,'${id}')"><option value="">⬇ Export…</option><option value="xlsx">Excel (.xlsx)</option><option value="pdf">PDF</option><option value="csv">CSV</option></select>`:'';
-async function doExp(sel,id){const f=sel.value;sel.selectedIndex=0;if(!f)return;const rows=rowsFor(id);if(!rows.length)return toast('Nothing to export');
- const t={needs:'Needs Assessment',team:'Team Members Work',users:'Users',facilities:'Facilities Summary'}[id],fn='techcare_'+id+'_'+stamp(),k=Object.keys(rows[0]);
- try{if(f==='csv')return csv('techcare_'+id,rows);
+async function loadImg(url){try{const r=await fetch(url);if(!r.ok)return null;const b=await r.blob();
+ const src=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(fr.result);fr.onerror=no;fr.readAsDataURL(b)});
+ const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=src});
+ const s=Math.min(1,160/im.naturalWidth,160/im.naturalHeight),w=Math.max(1,Math.round(im.naturalWidth*s)),h=Math.max(1,Math.round(im.naturalHeight*s)),c=document.createElement('canvas');c.width=w;c.height=h;
+ const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(im,0,0,w,h);const dataUrl=c.toDataURL('image/jpeg',0.85);
+ return{dataUrl,b64:dataUrl.split(',')[1],w,h}}catch(e){return null}}
+async function doExp(sel,id){const f=sel.value;sel.selectedIndex=0;if(!f)return;let rows=rowsFor(id);if(!rows.length)return toast('Nothing to export');
+ const t={needs:'Needs Assessment',team:'Team Members Work',users:'Users',facilities:'Facilities Summary'}[id],fn='techcare_'+id+'_'+stamp(),isN=id==='needs';let imgs=[];
+ try{if(isN){const urls=D.needs.map(r=>r.picture_url||'');
+   if(f==='csv')rows=rows.map((r,i)=>({...r,'Picture URL':urls[i]}));
+   else{toast('Preparing export with pictures…');const cache={};await Promise.all([...new Set(urls.filter(Boolean))].map(async u=>{cache[u]=await loadImg(u)}));
+    imgs=urls.map(u=>u?cache[u]:null);rows=rows.map((r,i)=>({...r,Picture:(imgs[i]||!urls[i])?'':urls[i]}))}}
+ const k=Object.keys(rows[0]),pc=k.indexOf('Picture');
+ if(f==='csv')return csv('techcare_'+id,rows);
  if(f==='xlsx'){const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet(t);ws.addRow(k);rows.forEach(r=>ws.addRow(k.map(c=>r[c])));
   ws.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF0EA5E9'}}});
   k.forEach((c,i)=>{ws.getColumn(i+1).width=Math.min(40,Math.max(13,c.length+4))});ws.views=[{state:'frozen',ySplit:1}];
+  if(isN){ws.getColumn(pc+1).width=24;imgs.forEach((im,i)=>{if(!im)return;const s=Math.min(1,150/im.w,80/im.h),w=Math.round(im.w*s),h=Math.round(im.h*s);
+   ws.addImage(wb.addImage({base64:im.b64,extension:'jpeg'}),{tl:{col:pc+0.08,row:i+1+0.08},ext:{width:w,height:h},editAs:'oneCell'});ws.getRow(i+2).height=h*0.75+6})}
   return dl(new Blob([await wb.xlsx.writeBuffer()],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),fn+'.xlsx')}
  const d=new jspdf.jsPDF('l','pt','a4');d.setFontSize(14);d.text('TECH-CARE OUTREACH TOOL - '+t,40,36);d.setFontSize(8);d.text('Generated '+new Date().toLocaleString(),40,50);
- d.autoTable({head:[k],body:rows.map(r=>k.map(c=>String(r[c]))),startY:60,styles:{fontSize:7,cellPadding:3},headStyles:{fillColor:[14,165,233]}});d.save(fn+'.pdf')}
+ const o={head:[k],body:rows.map(r=>k.map(c=>String(r[c]))),startY:60,styles:{fontSize:7,cellPadding:3},headStyles:{fillColor:[14,165,233]}};
+ if(isN){o.columnStyles={[pc]:{cellWidth:66}};o.didParseCell=h=>{if(h.section==='body'&&h.column.index===pc&&imgs[h.row.index])h.cell.styles.minCellHeight=54};
+  o.didDrawCell=h=>{if(h.section==='body'&&h.column.index===pc){const im=imgs[h.row.index];if(im){const s=Math.min((h.cell.width-4)/im.w,(h.cell.height-4)/im.h);h.doc.addImage(im.dataUrl,'JPEG',h.cell.x+2,h.cell.y+2,im.w*s,im.h*s)}}}}
+ d.autoTable(o);d.save(fn+'.pdf');toast('Export ready')}
  catch(x){toast('Export failed: '+x.message)}}
 async function tmpl(kind){const N=kind==='needs',C=N?NC:TC,wb=new ExcelJS.Workbook(),ws=wb.addWorksheet(N?'Needs Assessment':'Team Work'),ix=l=>C.findIndex(c=>c[0]===l)+1,L=l=>String.fromCharCode(64+ix(l));
  ws.addRow(C.map(c=>c[0]));ws.getRow(1).eachCell(c=>{c.font={bold:true,color:{argb:'FFFFFFFF'}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF0EA5E9'}}});
